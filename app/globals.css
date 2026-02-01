@@ -1,26 +1,97 @@
+/* globals.css */
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-gradient-1: #F6C6A4;
+  --color-gradient-2: #F7EFE5;
+  --color-gradient-3: #FFFFFF;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Existing Colors */
+  --color-primary: #CA925F;
+  --color-button: #DAB18C;
+  --color-background: transparent;
+  --color-text-gray: #545454;
+  --color-secondary: #755134;
+
+  /* Fonts */
+  --font-sans: var(--font-montserrat);
+  --font-serif: "Bodoni 72", "Bodoni MT", "Didot", "Times New Roman", serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    height: 100%;
+    background: linear-gradient(
+      150deg,
+      var(--color-gradient-1) 0%,
+      var(--color-gradient-2) 50%,
+      var(--color-gradient-3) 100%
+    );
+    background-attachment: fixed; 
+  }
+
+  body {
+    min-height: 100%;
+    background: transparent; 
+    color: var(--color-text-gray);
+    font-family: var(--font-sans);
+    margin: 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+
+
+/* Responsive utilities */
+@layer utilities {
+  /* Mobile-first approach */
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    /* Padding for mobile devices (375px - 767px) */
+    padding-left: 1.5rem; /* 24px */
+    padding-right: 1.5rem; /* 24px */
+  }
+  
+  /* Tablet (768px - 1023px) */
+  @media (min-width: 768px) {
+    .container {
+      max-width: 768px;
+      /* Increased padding for tablets */
+      padding-left: 3rem; /* 48px */
+      padding-right: 3rem; /* 48px */
+    }
+  }
+  
+  /* Desktop (1024px - 1279px) */
+  @media (min-width: 1024px) {
+    .container {
+      max-width: 1024px;
+      /* Further increased padding for smaller desktops */
+      padding-left: 4rem; /* 64px */
+      padding-right: 4rem; /* 64px */
+    }
+  }
+  
+  /* Large Desktop (1280px - 1439px) */
+  @media (min-width: 1280px) {
+    .container {
+      max-width: 1280px;
+      /* Larger padding for big screens */
+      padding-left: 6rem; /* 96px */
+      padding-right: 6rem; /* 96px */
+    }
+  }
+  
+  /* Extra Large Desktop (1440px and up) */
+  @media (min-width: 1440px) {
+    .container {
+      max-width: 1440px;
+      /* You can keep the same or increase further if needed */
+      padding-left: 6rem; /* 96px */
+      padding-right: 6rem; /* 96px */
+    }
+  }
 }
