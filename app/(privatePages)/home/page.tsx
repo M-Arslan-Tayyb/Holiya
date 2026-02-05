@@ -1,50 +1,98 @@
 "use client";
 
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useLayoutEffect,
+  useCallback,
+} from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { HoliyaLogo } from "@/components/custom/HoliyaLogo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ChatSidebar } from "@/components/pages/home/ChatSidebar";
+import { useSession } from "next-auth/react";
+import {
+  useSendMessageMutation,
+  useGetSessionsQuery,
+  useLazyGetMessagesQuery,
+} from "@/services/features/chat/api";
+import { generateSessionId } from "@/lib/chatUtils";
+import { toast } from "sonner";
+import { ChatSession as ApiChatSession } from "@/services/features/chat/types";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
+// Local interface for component state
 interface Message {
   role: "user" | "ai";
   content: string;
+  id?: number;
+  isLoading?: boolean;
+}
+
+interface ChatSession {
+  id: string;
+  title: string;
+  chat_session_id?: number;
+  created_at?: string;
 }
 
 export default function HomePage() {
+  const { data: authSession } = useSession();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isAnimating, setIsAnimating] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  // Initialize with default AI message
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "ai",
-      content:
-        "Hello! I'm Eva, your health companion. How can I help you today?",
-    },
-  ]);
+  const [currentSessionId, setCurrentSessionId] = useState<string>("new");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+  const [isNewChat, setIsNewChat] = useState(true);
+  const { data: session, status, update } = useSession();
 
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const step1TextRef = useRef<HTMLDivElement>(null);
   const step2TextRef = useRef<HTMLDivElement>(null);
   const step3ContainerRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom of messages
+  // RTK Query hooks
+  const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
+  const { data: sessionsData, isLoading: isLoadingSessions } =
+    useGetSessionsQuery(
+      { user_id: Number(authSession?.user?.id) || 0 },
+      { skip: !authSession?.user?.id },
+    );
+  const [fetchMessages, { isFetching: isLoadingMessages }] =
+    useLazyGetMessagesQuery();
+
+  // Load sessions from API
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (sessionsData?.data) {
+      const sessions: ChatSession[] = sessionsData.data.map(
+        (session: ApiChatSession) => ({
+          id: session.session_id,
+          title: session.first_message?.user_message || "New conversation",
+          chat_session_id: session.chat_session_id,
+          created_at: session.created_at,
+        }),
+      );
+      setChatSessions(sessions);
     }
+  }, [sessionsData]);
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Step 1 to Step 2 transition
+  // Welcome animation sequence
   useEffect(() => {
     if (step !== 1 || isAnimating) return;
 
     const timer = setTimeout(() => {
       setIsAnimating(true);
-
       const tl = gsap.timeline({
         onComplete: () => {
           setStep(2);
@@ -69,11 +117,7 @@ export default function HomePage() {
 
       tl.to(
         logoRef.current,
-        {
-          scale: 0.5,
-          duration: 0.6,
-          ease: "power2.inOut",
-        },
+        { scale: 0.5, duration: 0.6, ease: "power2.inOut" },
         "-=0.4",
       );
     }, 2000);
@@ -81,13 +125,11 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, [step, isAnimating]);
 
-  // Step 2 to Step 3 transition
   useEffect(() => {
     if (step !== 2 || isAnimating) return;
 
     const timer = setTimeout(() => {
       setIsAnimating(true);
-
       const tl = gsap.timeline({
         onComplete: () => {
           setStep(3);
@@ -105,12 +147,7 @@ export default function HomePage() {
 
       tl.to(
         logoRef.current,
-        {
-          opacity: 0,
-          scale: 0.5,
-          duration: 0.4,
-          ease: "power2.inOut",
-        },
+        { opacity: 0, scale: 0.5, duration: 0.4, ease: "power2.inOut" },
         "-=0.3",
       );
     }, 4000);
@@ -118,17 +155,11 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, [step, isAnimating]);
 
-  // Animate Step 2 text when it renders
   useLayoutEffect(() => {
     if (step !== 2 || !step2TextRef.current) return;
-
     gsap.fromTo(
       step2TextRef.current,
-      {
-        opacity: 0,
-        y: 40,
-        filter: "blur(8px)",
-      },
+      { opacity: 0, y: 40, filter: "blur(8px)" },
       {
         opacity: 1,
         y: 0,
@@ -140,25 +171,20 @@ export default function HomePage() {
     );
   }, [step]);
 
-  // Animate Step 3 elements
   useLayoutEffect(() => {
     if (step !== 3 || !step3ContainerRef.current) return;
-
     const tl = gsap.timeline();
-
     tl.fromTo(
       step3ContainerRef.current,
       { opacity: 0 },
       { opacity: 1, duration: 0.5 },
     );
-
     tl.fromTo(
       ".chat-container",
       { opacity: 0 },
       { opacity: 1, duration: 0.5 },
       "-=0.3",
     );
-
     tl.fromTo(
       ".input-section",
       { y: 20, opacity: 0 },
@@ -167,29 +193,149 @@ export default function HomePage() {
     );
   }, [step]);
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+  // Handle sending message
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || !authSession?.user?.id) return;
 
     const userMsg = inputValue.trim();
-    setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
     setInputValue("");
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "ai",
-          content:
-            "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna",
-        },
-      ]);
-    }, 1000);
+    // Optimistically add user message
+    const tempUserMsg: Message = { role: "user", content: userMsg };
+    setMessages((prev) => [...prev, tempUserMsg]);
+
+    // Add loading state for AI
+    const loadingMsg: Message = { role: "ai", content: "", isLoading: true };
+    setMessages((prev) => [...prev, loadingMsg]);
+
+    try {
+      const sessionId =
+        currentSessionId === "new" ? generateSessionId() : currentSessionId;
+
+      // Update current session if new
+      if (currentSessionId === "new") {
+        setCurrentSessionId(sessionId);
+        setIsNewChat(true);
+      }
+
+      const result = await sendMessage({
+        user_id: Number(authSession.user.id),
+        session_id: sessionId,
+        user_message: userMsg,
+      }).unwrap();
+
+      // Check success using data.success or fallback to checking if data exists
+      const isSuccess =
+        result.success ?? (result.data?.ai_response ? true : false);
+
+      if (!isSuccess) {
+        throw new Error(result.message || "Failed to send message");
+      }
+
+      // Replace loading with actual response
+      setMessages((prev) => {
+        const withoutLoading = prev.filter((m) => !m.isLoading);
+        return [
+          ...withoutLoading,
+          {
+            role: "ai",
+            content: result.data.ai_response,
+            id: Date.now(),
+          },
+        ];
+      });
+
+      // If this was a new chat, add to sidebar optimistically
+      if (isNewChat && result.data.first_message) {
+        const newSession: ChatSession = {
+          id: sessionId,
+          title: result.data.first_message,
+          created_at: new Date().toISOString(),
+        };
+        setChatSessions((prev) => [newSession, ...prev]);
+        setIsNewChat(false);
+      }
+    } catch (error: any) {
+      // Remove loading message and show error
+      setMessages((prev) => prev.filter((m) => !m.isLoading));
+      toast.error(error.message || "Failed to send message");
+    }
+  };
+
+  // Handle selecting a chat from sidebar
+  const handleSelectChat = useCallback(
+    async (sessionId: string, chatSessionId?: number) => {
+      setCurrentSessionId(sessionId);
+      setIsNewChat(false);
+
+      if (chatSessionId) {
+        // Load messages from API
+        try {
+          const result = await fetchMessages({
+            chat_session_id: chatSessionId,
+          }).unwrap();
+
+          // Check if successful
+          const isSuccess = result.success ?? (result.data ? true : false);
+
+          if (isSuccess && result.data) {
+            const loadedMessages: Message[] = result.data.flatMap((msg) => [
+              { role: "user", content: msg.user_message, id: msg.message_id },
+              { role: "ai", content: msg.ai_response, id: msg.message_id + 1 },
+            ]);
+            setMessages(loadedMessages);
+          } else {
+            throw new Error(result.message || "Failed to load messages");
+          }
+        } catch (error: any) {
+          toast.error(error.message || "Failed to load chat history");
+          setMessages([]);
+        }
+      } else {
+        // New chat - show welcome message
+        setMessages([
+          {
+            role: "ai",
+            content:
+              "Hello! I'm Eva, your health companion. How can I help you today?",
+          },
+        ]);
+      }
+    },
+    [fetchMessages],
+  );
+
+  // Handle new chat button
+  const handleNewChat = () => {
+    setCurrentSessionId("new");
+    setIsNewChat(true);
+    setMessages([
+      {
+        role: "ai",
+        content:
+          "Hello! I'm Eva, your health companion. How can I help you today?",
+      },
+    ]);
+  };
+
+  // Initial load - show new chat
+  useEffect(() => {
+    if (step === 3 && messages.length === 0) {
+      handleNewChat();
+    }
+  }, [step, messages.length]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   return (
     <div className="flex flex-col min-h-screen overflow-hidden relative">
-      {/* Header - Show in ALL steps */}
-      <div className="pt-4 md:pt-8 px-4 md:px-8 z-50">
+      {/* Header */}
+      <div className="pt-4 md:pt-8 px-4 md:px-8 z-50 fixed">
         <Image
           src="/holiya-text-logo-with-des.svg"
           alt="Holiya"
@@ -199,12 +345,23 @@ export default function HomePage() {
         />
       </div>
 
-      {/* Avatar - Shows in Step 2 and Step 3 */}
+      {/* Sidebar */}
+      <ChatSidebar
+        isVisible={step === 3}
+        sessions={chatSessions}
+        isLoading={isLoadingSessions}
+        currentSessionId={currentSessionId}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+      />
+
+      {/* Avatar */}
       {(step === 2 || step === 3) && (
         <div
           ref={avatarRef}
-          className="px-4 md:px-8 pt-4 flex items-center gap-3 ml-6 md:ml-36 mt-4"
-          style={{ opacity: step === 2 || step === 3 ? 1 : 0 }}
+          className={` mt-26 px-4 md:px-8 pt-4 flex items-center gap-3 transition-all duration-300 ${
+            step === 3 ? "md:ml-56 ml-6" : "ml-6 md:ml-16"
+          }`}
         >
           <Avatar className="md:w-12 md:h-12 h-10 w-10">
             <AvatarImage src="/holiya-doctor-image.jpg" alt="Eva" />
@@ -217,15 +374,19 @@ export default function HomePage() {
               Hello!
             </span>
             <span className="text-sm italic font-serif text-text-gray/80">
-              Eva
+              {session?.user.userName}
             </span>
           </div>
         </div>
       )}
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center max-w-2xl mx-auto w-full px-4 relative overflow-hidden">
-        {/* STEP 1: Initial Hello */}
+      <div
+        className={` flex-1 flex flex-col items-center w-full px-4 relative overflow-hidden transition-all duration-300 ${
+          step === 3 ? "md:ml-72 max-w-4xl" : "max-w-2xl mx-auto"
+        }`}
+      >
+        {/* STEP 1 */}
         {step === 1 && (
           <div className="flex flex-col items-center justify-center flex-1 w-full">
             <div ref={logoRef}>
@@ -243,7 +404,7 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* STEP 2: Text + Small Logo */}
+        {/* STEP 2 */}
         {step === 2 && (
           <div
             ref={step2TextRef}
@@ -262,7 +423,6 @@ export default function HomePage() {
                 <span className="italic font-serif">on your mind</span>.
               </p>
             </div>
-
             <div ref={logoRef}>
               <HoliyaLogo size="sm" />
             </div>
@@ -275,42 +435,67 @@ export default function HomePage() {
             ref={step3ContainerRef}
             className="flex flex-col w-full flex-1 pt-6 opacity-0 relative"
           >
-            {/* Chat Messages Area - Scrollable with padding for fixed input */}
+            {/* Chat Messages */}
             <div className="chat-container flex-1 overflow-y-auto space-y-4 px-2 pb-32 flex flex-col min-h-0">
-              {messages.map((msg, idx) =>
-                msg.role === "user" ? (
-                  <div
-                    key={idx}
-                    className="self-end bg-white/60 rounded-2xl p-4 max-w-[70%] md:max-w-[60%] text-sm text-text-gray border border-text-gray/20 "
-                  >
-                    {msg.content}
+              {isLoadingMessages ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-pulse text-text-gray/60">
+                    Loading messages...
                   </div>
-                ) : (
-                  // AI Message - No avatar, just message bubble aligned left
-                  <div
-                    key={idx}
-                    className="self-start bg-white/60 rounded-2xl p-4 border border-text-gray/20 max-w-[70%] md:max-w-[60%] text-sm text-text-gray"
-                  >
-                    {msg.content}
-                  </div>
-                ),
+                </div>
+              ) : (
+                messages.map((msg, idx) =>
+                  msg.role === "user" ? (
+                    <div
+                      key={msg.id || idx}
+                      className="self-end bg-white/60 rounded-2xl p-4 max-w-[70%] md:max-w-[60%] text-sm text-text-gray border border-text-gray/20"
+                    >
+                      {msg.content}
+                    </div>
+                  ) : (
+                    <div
+                      key={msg.id || idx}
+                      className="self-start bg-white/60 rounded-2xl p-4 border border-text-gray/20 max-w-[70%] md:max-w-[60%] text-sm text-text-gray"
+                    >
+                      {msg.isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" />
+                          <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce delay-100" />
+                          <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce delay-200" />
+                        </div>
+                      ) : (
+                        <div className="markdown-content">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {msg.content}
+                          </ReactMarkdown>
+                        </div>
+                      )}
+                    </div>
+                  ),
+                )
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Fixed Bottom: XS Logo + Input */}
+            {/* Input Section */}
             <div className="input-section fixed bottom-0 left-0 right-0 w-full bg-gradient-to-t from-[#fdf6f0] via-[#fdf6f0] to-transparent pb-6 pt-8 px-4 flex flex-col items-center gap-3 z-40">
               <div className="max-w-md w-full flex flex-col items-center gap-3">
                 <HoliyaLogo size="xs" />
-                <div className="w-full">
+                <div className="w-full relative">
                   <input
                     type="text"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                    onKeyDown={handleKeyDown}
                     placeholder="Share your symptoms or ask a question..."
-                    className="w-full px-4 py-3 rounded-md bg-white text-text-gray text-sm placeholder:text-text-gray focus:outline-none border border-text-gray/20 focus:border-primary/60 focus:ring-1 focus:ring-primary/60 transition-all"
+                    disabled={isSending}
+                    className="w-full px-4 py-3 pr-12 rounded-md bg-white text-text-gray text-sm placeholder:text-text-gray focus:outline-none border border-text-gray/20 focus:border-primary/60 focus:ring-1 focus:ring-primary/60 transition-all disabled:opacity-60"
                   />
+                  {isSending && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

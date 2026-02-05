@@ -1,7 +1,9 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
-import { COLORS } from "@/lib/theme";
+import { Suspense } from "react";
+import SessionProviderWrapper from "./providers/sessionProviderWrapper";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -23,7 +25,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={`${montserrat.variable} antialiased min-h-full`}>
-        <div className="container">{children}</div>
+        <div className="container">
+          <Suspense fallback={null}>
+            <SessionProviderWrapper>{children}</SessionProviderWrapper>
+          </Suspense>
+        </div>
       </body>
     </html>
   );

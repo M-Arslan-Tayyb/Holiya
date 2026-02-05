@@ -5,8 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { HoliyaLogo } from "@/components/custom/HoliyaLogo";
 import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
-// 1. Define the Zod Schema for validation
 const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
@@ -16,16 +18,55 @@ const formSchema = z.object({
   }),
 });
 
-// Infer the type of the form values
 type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  // 2. Initialize React Hook Form with Zod resolver
+  const { data: session, status, update } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = useState<string | null>(null);
+
+  // Debug: Log session status changes
+  useEffect(() => {
+    console.log("🔍 [LoginPage] Session status:", status);
+    console.log("🔍 [LoginPage] Session data:", session);
+
+    if (status === "authenticated" && session?.user) {
+      console.log(
+        "✅ [LoginPage] User authenticated, checking profile completion...",
+      );
+      console.log(
+        "📋 [LoginPage] userProfileCompletion:",
+        session.user.userProfileCompletion,
+      );
+      console.log("📋 [LoginPage] userName:", session.user.userName);
+      console.log("📋 [LoginPage] userEmail:", session.user.userEmail);
+
+      // Check if profile is incomplete
+      if (session.user.userProfileCompletion === false) {
+        console.log(
+          "⚠️ [LoginPage] Profile incomplete, redirecting to /register",
+        );
+        setShouldRedirect("/register");
+      } else {
+        console.log("✅ [LoginPage] Profile complete, redirecting to /home");
+        setShouldRedirect("/home");
+      }
+    }
+  }, [session, status]);
+
+  // Handle redirect after state update
+  useEffect(() => {
+    if (shouldRedirect) {
+      console.log("🚀 [LoginPage] Executing redirect to:", shouldRedirect);
+      router.push(shouldRedirect);
+    }
+  }, [shouldRedirect, router]);
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -34,22 +75,42 @@ export default function LoginPage() {
     },
   });
 
-  // 3. Handle Form Submission
   const onSubmit = async (data: FormValues) => {
-    console.log("Login Data:", data);
-    // TODO: Add your actual login logic here (API call, etc.)
+    console.log("📝 [LoginPage] Form submitted with email:", data.email);
+    setIsLoading(true);
+    try {
+      const authResult = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false, // Handle redirect manually
+      });
+
+      console.log("🔐 [LoginPage] Auth result:", authResult);
+
+      if (authResult?.error) {
+        console.error("❌ [LoginPage] Auth error:", authResult.error);
+        toast.error(authResult.error);
+      } else {
+        console.log(
+          "✅ [LoginPage] Login successful, waiting for session update...",
+        );
+        toast.success("Login successful! Redirecting...");
+        // Session will update via useSession hook, which triggers the useEffect above
+      }
+    } catch (error: any) {
+      console.error("❌ [LoginPage] Exception during login:", error);
+      const errorMessage = error?.message || "Login failed";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
-      {/* Main Container */}
       <div className="w-full max-w-[380px] space-y-8 text-center">
-        {/* --- Logos Section --- */}
         <div className="flex flex-col items-center space-y-2">
-          {/* Logo H - Using standard img tag for perfect scaling */}
           <HoliyaLogo size="sm" isSimple={true} />
-
-          {/* Text Logo */}
           <img
             src="/holiya-text-logo.svg"
             alt="Holiya Text"
@@ -57,10 +118,8 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* --- Header Text --- */}
         <div className="space-y-2">
           <div className="space-y-1">
-            {/* Welcome Text - Fixed 40px */}
             <h1 className="text-[40px] text-text-gray font-sans leading-tight">
               Welcome
             </h1>
@@ -69,9 +128,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* --- Form Section --- */}
           <form onSubmit={handleSubmit(onSubmit)} className="text-left">
-            {/* Email Input */}
             <div className="space-y-1 mb-2">
               <label className="block text-text-gray text-sm font-medium mb-1">
                 Email
@@ -89,10 +146,7 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Forgot Password Link (As per your request, placed here) */}
-
-            {/* Password Input */}
-            <div className=" mb-6">
+            <div className="mb-6">
               <div className="flex justify-between items-center">
                 <label className="block text-text-gray text-sm font-medium mb-1">
                   Password
@@ -117,26 +171,21 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Sign In Button - Centered and Auto Width */}
             <div className="flex justify-center pt-2">
               <button
                 type="submit"
-                disabled={isSubmitting}
-                onClick={(e: any) => {
-                  router.push("/home");
-                }}
+                disabled={isLoading}
                 className="px-10 py-2 rounded-sm bg-button text-sm font-bold text-text-gray shadow-md hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-70"
               >
-                {isSubmitting ? "Signing in..." : "Sign in"}
+                {isLoading ? "Signing in..." : "Sign in"}
               </button>
             </div>
 
-            {/* --- Footer / Sign Up Text --- */}
             <div className="pt-2 text-center">
               <p className="text-sm font-sans text-text-gray">
                 Don&apos;t have an account?{" "}
                 <a
-                  href="/register"
+                  href="/signup"
                   className="font-bold text-text-gray hover:text-primary"
                 >
                   Sign up
