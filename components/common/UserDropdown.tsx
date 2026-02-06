@@ -60,7 +60,7 @@ shadow-[0_8px_30px_rgba(117,81,52,0.08)] backdrop-blur-md"
           <button className="flex items-center gap-2 md:gap-3 outline-none focus:outline-none">
             <Avatar className="h-9 w-9 md:h-10 md:w-10 border-2 border-white/50 shadow-sm">
               <AvatarImage
-                src="/holiya-user-image.avif"
+                src="/holiya-user-image2.jpg"
                 alt={userName}
                 className="object-cover"
               />
@@ -95,7 +95,7 @@ bg-[linear-gradient(150deg,#F6C6A4_0%,#F7EFE5_70%,rgba(255,255,255,0.5)_100%)]
             <div className="flex flex-col items-center">
               <Avatar className="h-16 w-16 border-3 border-white shadow-md mb-3">
                 <AvatarImage
-                  src="/holiya-user-image.avif"
+                  src="/holiya-user-image2.jpg"
                   alt={userName}
                   className="object-cover"
                 />

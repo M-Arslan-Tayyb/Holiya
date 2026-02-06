@@ -399,7 +399,7 @@ export default function HomePage() {
             <AvatarImage
               src="/holiya-user-image2.jpg"
               alt={"HoliyaAi"}
-              className="object-cover" // Ensures the image fills the circle without stretching
+              className="object-cover"
             />
             <AvatarFallback className="bg-gray-800 text-white text-xs font-bold">
               {"HL"}
@@ -410,7 +410,7 @@ export default function HomePage() {
               Hello!
             </span>
             <span className="text-sm italic font-serif text-text-gray/80">
-              {"HoliyaAi"}
+              {session?.user?.userName || "US"}
             </span>
           </div>
         </div>
