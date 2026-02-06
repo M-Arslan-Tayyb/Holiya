@@ -18,6 +18,18 @@ interface ChatSidebarProps {
   currentSessionId?: string;
   onNewChat: () => void;
   onSelectChat: (sessionId: string, chatSessionId?: number) => void;
+  onDeleteSession: (sessionId: string) => void;
+}
+
+interface SidebarContentProps {
+  sessions: ChatSession[];
+  isLoading: boolean;
+  currentSessionId?: string;
+  hoveredId: string | null;
+  setHoveredId: (id: string | null) => void;
+  onNewChat: () => void;
+  onDeleteChat: (e: React.MouseEvent, sessionId: string) => void;
+  onSelectChat: (session: ChatSession) => void;
 }
 
 export function ChatSidebar({
@@ -27,6 +39,7 @@ export function ChatSidebar({
   currentSessionId,
   onNewChat,
   onSelectChat,
+  onDeleteSession,
 }: ChatSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -54,8 +67,7 @@ export function ChatSidebar({
 
   const handleDeleteChat = (e: React.MouseEvent, sessionId: string) => {
     e.stopPropagation();
-    // TODO: Add delete API call
-    console.log("Delete chat:", sessionId);
+    onDeleteSession(sessionId);
   };
 
   const handleSelect = (session: ChatSession) => {
@@ -84,15 +96,19 @@ export function ChatSidebar({
             <div
               className="fixed inset-0 bg-black/10 backdrop-blur-sm z-40"
               onClick={() => setIsOpen(false)}
+              aria-hidden="true"
             />
-            <div className="sidebar-container fixed top-20 left-0 h-[calc(100vh-5rem)] w-72 bg-white/70 backdrop-blur-lg shadow-xl z-50 flex flex-col rounded-r-3xl border-r border-text-gray/5">
+            <div className="sidebar-container fixed top-20 left-0 h-[calc(100vh-5rem)] w-72 bg-gradient-to-br from-white/80 via-white/60 to-primary/5 backdrop-blur-lg shadow-xl z-50 flex flex-col rounded-r-3xl border-r border-text-gray/5 overflow-hidden">
               <SidebarContent
                 sessions={sessions}
                 isLoading={isLoading}
                 currentSessionId={currentSessionId}
                 hoveredId={hoveredId}
                 setHoveredId={setHoveredId}
-                onNewChat={onNewChat}
+                onNewChat={() => {
+                  onNewChat();
+                  setIsOpen(false);
+                }}
                 onDeleteChat={handleDeleteChat}
                 onSelectChat={handleSelect}
               />
@@ -104,7 +120,7 @@ export function ChatSidebar({
   }
 
   return (
-    <div className="sidebar-container fixed top-30 left-0 h-[calc(100vh-5rem)] w-72 bg-white/50 backdrop-blur-lg shadow-lg flex flex-col rounded-r-3xl border-r border-text-gray/5">
+    <div className="sidebar-container fixed top-20 left-0 h-[calc(100vh-5rem)] w-72 bg-gradient-to-t from-white/80 via-white/60 to-primary/5 backdrop-blur-lg shadow-lg flex flex-col rounded-tr-3xl border-r border-text-gray/5 z-30 overflow-hidden">
       <SidebarContent
         sessions={sessions}
         isLoading={isLoading}
@@ -128,25 +144,17 @@ function SidebarContent({
   onNewChat,
   onDeleteChat,
   onSelectChat,
-}: {
-  sessions: ChatSession[];
-  isLoading: boolean;
-  currentSessionId?: string;
-  hoveredId: string | null;
-  setHoveredId: (id: string | null) => void;
-  onNewChat: () => void;
-  onDeleteChat: (e: React.MouseEvent, sessionId: string) => void;
-  onSelectChat: (session: ChatSession) => void;
-}) {
+}: SidebarContentProps) {
   return (
     <>
       <div className="p-4 border-b border-text-gray/30 mt-2">
         <button
           onClick={onNewChat}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary/90 to-button/90 rounded-xl text-white font-sans font-medium text-sm hover:shadow-md hover:scale-[1.02] transition-all"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary/90 to-button/90 rounded-xl text-white font-sans font-medium text-sm hover:shadow-md hover:scale-[1.02] transition-all shadow-sm"
+          aria-label="Start new health chat"
         >
           <Plus className="w-5 h-5" />
-          New Chat
+          New Health Chat
         </button>
       </div>
 
@@ -156,9 +164,13 @@ function SidebarContent({
         </h3>
 
         {isLoading ? (
-          <div className="px-3 py-4 text-sm text-text-gray/60">Loading...</div>
+          <div className="px-3 py-4 text-sm text-text-gray/60 flex items-center">
+            <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin mr-2" />
+            Loading...
+          </div>
         ) : sessions.length === 0 ? (
-          <div className="px-3 py-4 text-sm text-text-gray/60 italic">
+          <div className="px-3 py-4 text-sm text-text-gray/60 italic text-center">
+            <div className="mb-2 text-xl opacity-50">💬</div>
             No chats yet
           </div>
         ) : (
@@ -174,6 +186,11 @@ function SidebarContent({
                 onMouseEnter={() => setHoveredId(session.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 onClick={() => onSelectChat(session)}
+                role="button"
+                aria-current={
+                  currentSessionId === session.id ? "true" : undefined
+                }
+                aria-label={`Chat: ${session.title}`}
               >
                 <div className="flex items-center gap-3 p-3 pr-2">
                   <div className="flex-1 min-w-0">
@@ -186,11 +203,23 @@ function SidebarContent({
                     >
                       {session.title}
                     </p>
+                    {session.created_at && (
+                      <p className="text-[0.65rem] text-text-gray/50 mt-0.5">
+                        {new Date(session.created_at).toLocaleDateString(
+                          undefined,
+                          {
+                            month: "short",
+                            day: "numeric",
+                          },
+                        )}
+                      </p>
+                    )}
                   </div>
                   {hoveredId === session.id && (
                     <button
                       onClick={(e) => onDeleteChat(e, session.id)}
                       className="flex-shrink-0 p-2 rounded-lg bg-white/60 hover:bg-red-50 text-text-gray/30 hover:text-red-400 transition-all shadow-sm"
+                      aria-label={`Delete chat: ${session.title}`}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -204,7 +233,7 @@ function SidebarContent({
 
       <div className="p-4 border-t border-text-gray/5">
         <div className="text-xs text-text-gray/40 font-sans text-center italic">
-          Your health companion
+          Holiya Health Companion
         </div>
       </div>
     </>

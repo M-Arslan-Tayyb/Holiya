@@ -1,12 +1,4 @@
-// Generic API Response Type (matching your backend)
-export type GenericApiResponse<T> = {
-  success?: boolean;
-  message?: string;
-  data: T;
-  userId?: number;
-  pagination?: any;
-  httpStatusCode?: number;
-};
+import { ApiResponse } from "../auth/types";
 
 export interface SendMessageRequest {
   user_id: number;
@@ -42,6 +34,6 @@ export interface ChatMessage {
 }
 
 // API Response types using GenericApiResponse wrapper
-export type SendMessageResponse = GenericApiResponse<SendMessageResponseData>;
-export type GetSessionsResponse = GenericApiResponse<ChatSession[]>;
-export type GetMessagesResponse = GenericApiResponse<ChatMessage[]>;
+export type SendMessageResponse = ApiResponse<SendMessageResponseData>;
+export type GetSessionsResponse = ApiResponse<ChatSession[]>;
+export type GetMessagesResponse = ApiResponse<ChatMessage[]>;

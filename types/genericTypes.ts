@@ -1,6 +1,6 @@
 // Generic API Response Type
 export type GenericApiResponse<T> = {
-  success?: boolean;
+  succeeded?: boolean;
   message?: string;
   data: T | null;
   userId?: number;

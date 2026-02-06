@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useState } from "react";
+import { Eye, EyeOff, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import * as z from "zod";
 
 // 1. Define the Zod Schema for validation
@@ -22,7 +24,9 @@ const formSchema = z.object({
   phone_no: z.string().min(10, {
     message: "Please enter a valid phone number.",
   }),
-  invitation_code: z.string().optional(),
+  invitation_code: z.string().min(1, {
+    message: "Invitation code is required.",
+  }),
 });
 
 // Infer the type of the form values
@@ -31,6 +35,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function SignupPage() {
   const router = useRouter();
   const [signupMutation, { isLoading }] = useSignupMutation();
+  const [showPassword, setShowPassword] = useState(false);
 
   // 2. Initialize React Hook Form with Zod resolver
   const {
@@ -55,161 +60,209 @@ export default function SignupPage() {
       const result = await signupMutation(data).unwrap();
 
       if (result.succeeded) {
-        toast.success("Account created successfully! Redirecting to login...");
+        toast.success("Account created successfully!", {
+          description: "Redirecting to login page...",
+          icon: <CheckCircle2 className="w-4 h-4 text-green-500" />,
+          duration: 3000,
+        });
+
         // Redirect to login page after successful signup
         setTimeout(() => {
           router.push("/login");
         }, 2000);
       } else {
-        toast.error(result.message || "Signup failed");
+        // Handle API returned success: false
+        toast.error("Signup failed", {
+          description:
+            result.message || "Please check your information and try again.",
+          icon: <XCircle className="w-4 h-4 text-red-500" />,
+          duration: 5000,
+        });
       }
     } catch (error: any) {
-      const errorMessage = error?.data?.message || "Signup failed";
-      toast.error(errorMessage);
+      // Handle network or server errors
+      const errorMessage =
+        error?.data?.message ||
+        error?.message ||
+        "An unexpected error occurred";
+      const errorDetails = error?.data?.errors
+        ? Object.values(error?.data?.errors).flat().join(", ")
+        : null;
+
+      toast.error("Signup failed", {
+        description: errorDetails || errorMessage,
+        icon: <XCircle className="w-4 h-4 text-red-500" />,
+        duration: 5000,
+      });
     }
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
-      {/* Main Container */}
-      <div className="w-full max-w-[380px] space-y-8 text-center">
+    <main className="flex min-h-screen items-center justify-center px-4 py-12 md:py-20">
+      {/* Main Container - Added vertical padding and max-height handling */}
+      <div className="w-full max-w-[380px] space-y-6 text-center my-auto">
         {/* --- Logos Section --- */}
         <div className="flex flex-col items-center space-y-2">
-          {/* Logo H - Using standard img tag for perfect scaling */}
           <HoliyaLogo size="sm" isSimple={true} />
-
-          {/* Text Logo */}
           <img
             src="/holiya-text-logo.svg"
             alt="Holiya Text"
-            className="h-20 w-40 object-contain"
+            className="h-16 w-36 object-contain md:h-20 md:w-40"
           />
         </div>
 
         {/* --- Header Text --- */}
-        <div className="space-y-2">
+        <div className="space-y-1">
+          <h1 className="text-[32px] md:text-[40px] text-text-gray font-sans leading-tight">
+            Create Account
+          </h1>
+          <p className="text-xs text-text-gray/80 font-sans font-normal">
+            Sign up to start your health journey
+          </p>
+        </div>
+
+        {/* --- Form Section --- */}
+        <form onSubmit={handleSubmit(onSubmit)} className="text-left space-y-4">
+          {/* Name Input */}
           <div className="space-y-1">
-            {/* Welcome Text - Fixed 40px */}
-            <h1 className="text-[40px] text-text-gray font-sans leading-tight">
-              Create Account
-            </h1>
-            <p className="text-xs text-text-gray font-sans font-normal">
-              Sign up to start your health journey
-            </p>
+            <label className="block text-text-gray text-sm font-medium">
+              Name
+            </label>
+            <input
+              type="text"
+              placeholder="Full Name"
+              {...register("name")}
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-gray-400"
+            />
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <XCircle className="w-3 h-3" />
+                {errors.name.message}
+              </p>
+            )}
           </div>
 
-          {/* --- Form Section --- */}
-          <form onSubmit={handleSubmit(onSubmit)} className="text-left">
-            {/* Name Input */}
-            <div className="space-y-1 mb-2">
-              <label className="block text-text-gray text-sm font-medium mb-1">
-                Name
-              </label>
-              <input
-                type="text"
-                placeholder="Full Name"
-                {...register("name")}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-primary outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-600"
-              />
-              {errors.name && (
-                <p className="text-xs text-red-500 pl-1 mt-1">
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
+          {/* Email Input */}
+          <div className="space-y-1">
+            <label className="block text-text-gray text-sm font-medium">
+              Email
+            </label>
+            <input
+              type="email"
+              placeholder="Email"
+              {...register("email")}
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-gray-400"
+            />
+            {errors.email && (
+              <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <XCircle className="w-3 h-3" />
+                {errors.email.message}
+              </p>
+            )}
+          </div>
 
-            {/* Email Input */}
-            <div className="space-y-1 mb-2">
-              <label className="block text-text-gray text-sm font-medium mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                placeholder="Email"
-                {...register("email")}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-primary outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-600"
-              />
-              {errors.email && (
-                <p className="text-xs text-red-500 pl-1 mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+          {/* Phone Number Input */}
+          <div className="space-y-1">
+            <label className="block text-text-gray text-sm font-medium">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              placeholder="Phone Number"
+              {...register("phone_no")}
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-gray-400"
+            />
+            {errors.phone_no && (
+              <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <XCircle className="w-3 h-3" />
+                {errors.phone_no.message}
+              </p>
+            )}
+          </div>
 
-            {/* Phone Number Input */}
-            <div className="space-y-1 mb-2">
-              <label className="block text-text-gray text-sm font-medium mb-1">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                {...register("phone_no")}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-primary outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-600"
-              />
-              {errors.phone_no && (
-                <p className="text-xs text-red-500 pl-1 mt-1">
-                  {errors.phone_no.message}
-                </p>
-              )}
-            </div>
+          {/* Invitation Code Input - NOW REQUIRED */}
+          <div className="space-y-1">
+            <label className="block text-text-gray text-sm font-medium">
+              Invitation Code <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Invitation Code"
+              {...register("invitation_code")}
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-gray-400"
+            />
+            {errors.invitation_code && (
+              <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <XCircle className="w-3 h-3" />
+                {errors.invitation_code.message}
+              </p>
+            )}
+          </div>
 
-            {/* Invitation Code Input */}
-            <div className="space-y-1 mb-2">
-              <label className="block text-text-gray text-sm font-medium mb-1">
-                Invitation Code
-              </label>
+          {/* Password Input with Eye Icon */}
+          <div className="space-y-1">
+            <label className="block text-text-gray text-sm font-medium">
+              Password
+            </label>
+            <div className="relative">
               <input
-                type="text"
-                placeholder="Invitation Code"
-                {...register("invitation_code")}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-primary outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-600"
-              />
-            </div>
-
-            {/* Password Input */}
-            <div className="mb-6">
-              <label className="block text-text-gray text-sm font-medium mb-1">
-                Password
-              </label>
-              <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 {...register("password")}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-primary outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-600"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-gray-400"
               />
-              {errors.password && (
-                <p className="text-xs text-red-500 pl-1 mt-1">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            {/* Sign Up Button - Centered and Auto Width */}
-            <div className="flex justify-center pt-2">
               <button
-                type="submit"
-                disabled={isLoading}
-                className="px-10 py-2 rounded-sm bg-button text-sm font-bold text-text-gray shadow-md hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-70"
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                tabIndex={-1}
               >
-                {isLoading ? "Creating account..." : "Sign up"}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </button>
             </div>
-
-            {/* --- Footer / Sign In Text --- */}
-            <div className="pt-2 text-center">
-              <p className="text-sm font-sans text-text-gray">
-                Already have an account?{" "}
-                <a
-                  href="/login"
-                  className="font-bold text-text-gray hover:text-primary"
-                >
-                  Sign in
-                </a>
+            {errors.password && (
+              <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <XCircle className="w-3 h-3" />
+                {errors.password.message}
               </p>
-            </div>
-          </form>
-        </div>
+            )}
+          </div>
+
+          {/* Sign Up Button */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-2.5 rounded-lg bg-button text-sm font-bold text-text-gray shadow-md hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Sign up"
+              )}
+            </button>
+          </div>
+
+          {/* --- Footer / Sign In Text --- */}
+          <div className="pt-2 text-center">
+            <p className="text-sm font-sans text-text-gray">
+              Already have an account?{" "}
+              <a
+                href="/login"
+                className="font-bold text-text-gray hover:text-primary underline-offset-2 hover:underline transition-all"
+              >
+                Sign in
+              </a>
+            </p>
+          </div>
+        </form>
       </div>
     </main>
   );

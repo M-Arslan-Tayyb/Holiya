@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react"; // Importing icons
 
 const formSchema = z.object({
   email: z.string().email({
@@ -22,34 +23,18 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Debug: Log session status changes
+  // Redirect logic based on session state
   useEffect(() => {
-    console.log("🔍 [LoginPage] Session status:", status);
-    console.log("🔍 [LoginPage] Session data:", session);
-
     if (status === "authenticated" && session?.user) {
-      console.log(
-        "✅ [LoginPage] User authenticated, checking profile completion...",
-      );
-      console.log(
-        "📋 [LoginPage] userProfileCompletion:",
-        session.user.userProfileCompletion,
-      );
-      console.log("📋 [LoginPage] userName:", session.user.userName);
-      console.log("📋 [LoginPage] userEmail:", session.user.userEmail);
-
       // Check if profile is incomplete
       if (session.user.userProfileCompletion === false) {
-        console.log(
-          "⚠️ [LoginPage] Profile incomplete, redirecting to /register",
-        );
         setShouldRedirect("/register");
       } else {
-        console.log("✅ [LoginPage] Profile complete, redirecting to /home");
         setShouldRedirect("/home");
       }
     }
@@ -58,7 +43,6 @@ export default function LoginPage() {
   // Handle redirect after state update
   useEffect(() => {
     if (shouldRedirect) {
-      console.log("🚀 [LoginPage] Executing redirect to:", shouldRedirect);
       router.push(shouldRedirect);
     }
   }, [shouldRedirect, router]);
@@ -76,31 +60,37 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: FormValues) => {
-    console.log("📝 [LoginPage] Form submitted with email:", data.email);
     setIsLoading(true);
     try {
       const authResult = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false, // Handle redirect manually
+        redirect: false, // Important: Handle redirect manually to prevent page reloads
       });
 
-      console.log("🔐 [LoginPage] Auth result:", authResult);
-
+      // Check for specific errors
       if (authResult?.error) {
-        console.error("❌ [LoginPage] Auth error:", authResult.error);
-        toast.error(authResult.error);
-      } else {
-        console.log(
-          "✅ [LoginPage] Login successful, waiting for session update...",
-        );
+        // Mapping technical error codes to user-friendly messages
+        const errorMap: Record<string, string> = {
+          CredentialsSignin: "Invalid email or password.",
+          default: authResult.error,
+        };
+
+        const message =
+          errorMap[authResult.error] ||
+          "Login failed. Invalid email or password.";
+        toast.error(message);
+      } else if (authResult?.ok) {
         toast.success("Login successful! Redirecting...");
         // Session will update via useSession hook, which triggers the useEffect above
+      } else {
+        // Handle case where authResult is returned but no explicit ok/error
+        toast.error("An unexpected error occurred. Please try again.");
       }
     } catch (error: any) {
-      console.error("❌ [LoginPage] Exception during login:", error);
-      const errorMessage = error?.message || "Login failed";
-      toast.error(errorMessage);
+      // This block catches network errors or issues with the signIn call itself
+      console.error("Login exception:", error);
+      toast.error("Connection failed. Please check your network.");
     } finally {
       setIsLoading(false);
     }
@@ -147,8 +137,8 @@ export default function LoginPage() {
             </div>
 
             <div className="mb-6">
-              <div className="flex justify-between items-center">
-                <label className="block text-text-gray text-sm font-medium mb-1">
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-text-gray text-sm font-medium">
                   Password
                 </label>
                 <a
@@ -158,12 +148,32 @@ export default function LoginPage() {
                   Forgot password?
                 </a>
               </div>
-              <input
-                type="password"
-                placeholder="Password"
-                {...register("password")}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-primary outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-600"
-              />
+
+              {/* Relative wrapper for the input and icon */}
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  {...register("password")}
+                  // Added pr-10 to prevent text from going under the icon
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-sm text-primary outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-600"
+                />
+
+                {/* Eye Icon Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary focus:outline-none"
+                  tabIndex={-1} // Prevent focusing this button when tabbing through form
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+
               {errors.password && (
                 <p className="text-xs text-red-500 pl-1 mt-1">
                   {errors.password.message}
