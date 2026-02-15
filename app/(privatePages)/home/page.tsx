@@ -25,6 +25,9 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ArrowUp, Copy, Check } from "lucide-react";
 
+// Import the reusable hook
+import { useAiStream } from "@/hooks/useAiStream"; // Adjust path as necessary
+
 // Local interface for component state
 interface Message {
   role: "user" | "ai";
@@ -59,6 +62,13 @@ export default function HomePage() {
   const logoRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
 
+  // Initialize the streaming hook
+  const { streamText, isStreaming, resetStream, streamedContent } = useAiStream(
+    {
+      streamSpeed: 10, // Speed of the typewriter effect
+    },
+  );
+
   // RTK Query hooks
   const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
   const { data: sessionsData, isLoading: isLoadingSessions } =
@@ -88,6 +98,22 @@ export default function HomePage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // --- SYNC STREAMING CONTENT TO MESSAGES ---
+  useEffect(() => {
+    if (isStreaming) {
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        const lastMsg = newMessages[newMessages.length - 1];
+
+        if (lastMsg && lastMsg.role === "ai" && !lastMsg.isLoading) {
+          lastMsg.content = streamedContent;
+        }
+        return newMessages;
+      });
+    }
+  }, [streamedContent, isStreaming]);
+  // -----------------------------------------
 
   // Welcome animation sequence
   useEffect(() => {
@@ -206,7 +232,7 @@ export default function HomePage() {
     const tempUserMsg: Message = { role: "user", content: userMsg };
     setMessages((prev) => [...prev, tempUserMsg]);
 
-    // Add loading state for AI
+    // Add loading state for AI (Bouncing dots)
     const loadingMsg: Message = { role: "ai", content: "", isLoading: true };
     setMessages((prev) => [...prev, loadingMsg]);
 
@@ -233,18 +259,25 @@ export default function HomePage() {
         throw new Error(result.message || "Failed to send message");
       }
 
-      // Replace loading with actual response
-      setMessages((prev) => {
-        const withoutLoading = prev.filter((m) => !m.isLoading);
-        return [
-          ...withoutLoading,
-          {
-            role: "ai",
-            content: result.data.ai_response,
-            id: Date.now(),
-          },
-        ];
-      });
+      // --- STREAMING LOGIC START ---
+      const fullResponseText = result.data.ai_response;
+
+      // 1. Remove the "loading" (dots) message
+      setMessages((prev) => prev.filter((m) => !m.isLoading));
+
+      // 2. Add an empty AI message which will be filled by the stream
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "ai",
+          content: "", // Start empty
+          id: Date.now(),
+        },
+      ]);
+
+      // 3. Trigger the hook to start streaming text
+      streamText(fullResponseText);
+      // -----------------------------
 
       // If this was a new chat, add to sidebar optimistically
       if (isNewChat) {
@@ -267,6 +300,8 @@ export default function HomePage() {
     async (sessionId: string, chatSessionId?: number) => {
       setCurrentSessionId(sessionId);
       setIsNewChat(false);
+      // Reset stream if we switch chats
+      resetStream();
 
       if (chatSessionId && sessionId !== "new") {
         try {
@@ -290,27 +325,21 @@ export default function HomePage() {
           setMessages([]);
         }
       } else {
-        setMessages([
-          {
-            role: "ai",
-            content: `Hello! I'm ${"HoliyaAi"}, your health companion. How can I help you today?`,
-          },
-        ]);
+        // NEW CHAT SELECTED: Set empty messages, no default text
+        setMessages([]);
       }
     },
-    [fetchMessages, session?.user?.userName],
+    [fetchMessages, session?.user?.userName, resetStream],
   );
 
   // Handle new chat button
   const handleNewChat = () => {
     setCurrentSessionId("new");
     setIsNewChat(true);
-    setMessages([
-      {
-        role: "ai",
-        content: `Hello! I'm ${"HoliyaAi"}, your health companion. How can I help you today?`,
-      },
-    ]);
+    resetStream();
+
+    // FIXED: Set messages to empty array to clear the screen
+    setMessages([]);
   };
 
   // Handle delete session from local state
@@ -352,12 +381,13 @@ export default function HomePage() {
   // Custom markdown components
   const markdownComponents = {
     p: ({ children }: any) => (
-      <p className="mb-2 last:mb-0 leading-relaxed whitespace-pre-wrap">
+      <p className="mb-2 last:mb-0 leading-relaxed text-text-gray">
         {children}
       </p>
     ),
+    // Changed text color to darker shade so bold text is visible
     strong: ({ children }: any) => (
-      <strong className="font-semibold text-text-gray">{children}</strong>
+      <strong className="font-bold text-text-gray-900">{children}</strong>
     ),
     ul: ({ children }: any) => (
       <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>
@@ -557,17 +587,17 @@ export default function HomePage() {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder="Share your symptoms or ask a question..."
-                      disabled={isSending}
+                      disabled={isSending || isStreaming}
                       className="w-full px-4 py-3 pr-12 rounded-md bg-white text-text-gray text-sm placeholder:text-text-gray focus:outline-none border border-text-gray/20 focus:border-primary/60 focus:ring-1 focus:ring-primary/60 transition-all disabled:opacity-60"
                     />
 
                     {/* Send button */}
                     <button
                       onClick={() => handleSendMessage()}
-                      disabled={!inputValue.trim() || isSending}
+                      disabled={!inputValue.trim() || isSending || isStreaming}
                       className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                     >
-                      {isSending ? (
+                      {isSending || isStreaming ? (
                         <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                       ) : (
                         <ArrowUp className="w-4 h-4" />

@@ -26,7 +26,7 @@ export const authApi = createApi({
         data: userData,
       }),
     }),
-    completeProfile: builder.mutation<any, QuestionnaireRequest>({
+    completeProfile: builder.mutation<any, any>({
       query: (data) => ({
         url: "user/user/questioner",
         method: "POST",

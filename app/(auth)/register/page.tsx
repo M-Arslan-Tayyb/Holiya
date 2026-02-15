@@ -7,46 +7,39 @@ import { Stepper } from "@/components/pages/register/stepper";
 import { InfoCard } from "@/components/pages/register/info-card";
 import { ConsentSection } from "@/components/pages/register/ConsentSestion";
 import { cn } from "@/lib/utils";
-import { CustomRadio } from "@/components/custom/CustomRadio";
 import { IndustrySelect } from "@/components/pages/register/IndustrySelect";
 import { useRouter } from "next/navigation";
 import { HoliyaLogo } from "@/components/custom/HoliyaLogo";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useCompleteProfileMutation } from "@/services/features/auth/api";
-import { QuestionnaireRequest } from "@/services/features/auth/types";
 
 const TOTAL_STEPS = 3;
-const INDUSTRIES_DATA = [
-  {
-    id: "corporate",
-    name: "Finance / Corporate",
-    conditions: [
-      "PMS (Premenstrual Syndrome)",
-      "PMDD (Premenstrual Dysphoric Disorder)",
-      "Endometriosis",
-      "Dysmenorrhea (Painful Periods)",
-    ],
-  },
-  {
-    id: "healthcare",
-    name: "Healthcare / Medical",
-    conditions: [
-      "Heavy Menstrual Bleeding",
-      "Fibroids",
-      "Thyroid Disorders",
-      "Menopause Symptoms",
-    ],
-  },
-  {
-    id: "education",
-    name: "Education / Teaching",
-    conditions: [
-      "PCOS (Polycystic Ovary Syndrome)",
-      "Irregular Periods",
-      "Chronic Fatigue",
-    ],
-  },
+
+// New Industry List as requested
+const INDUSTRY_LIST = [
+  "Administration",
+  "Operations",
+  "Customer Service",
+  "Sales & Marketing",
+  "Finance",
+  "Human Resources",
+  "Legal",
+  "Technical / IT",
+  "Creative",
+  "Research & Analysis",
+  "Management / Leadership",
+  "Technology",
+  "Health & Life Sciences",
+  "Aviation & Aerospace",
+  "Manufacturing & Engineering",
+  "Media & Communications",
+  "Science & Research",
+  "Education",
+  "Public Service",
+  "Government",
+  "Charity / Non-Profit",
+  "Freelance / Independent",
 ];
 
 // Beautiful Loading Component
@@ -154,7 +147,9 @@ export default function RegisterPage() {
   const [gdprConsent, setGdprConsent] = useState(false);
   const [dataConsent, setDataConsent] = useState(false);
   const [selectedIndustry, setSelectedIndustry] = useState("");
-  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
+
+  // REMOVED: selectedConditions, conditionsRef as they are no longer needed
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSetupLoader, setShowSetupLoader] = useState(false);
 
@@ -166,7 +161,6 @@ export default function RegisterPage() {
   const step1Ref = useRef<HTMLDivElement>(null);
   const step2Ref = useRef<HTMLDivElement>(null);
   const step3Ref = useRef<HTMLDivElement>(null);
-  const conditionsRef = useRef<HTMLDivElement>(null);
 
   // Header refs for Step 1 animation only
   const logoRef = useRef<HTMLDivElement>(null);
@@ -182,16 +176,10 @@ export default function RegisterPage() {
 
   const canContinue = useMemo(() => {
     if (currentStep === 1) return gdprConsent && dataConsent;
-    if (currentStep === 2)
-      return selectedIndustry.length > 0 && selectedConditions.length > 0;
+    // Step 2 now only requires Industry to be selected
+    if (currentStep === 2) return selectedIndustry.length > 0;
     return true;
-  }, [
-    currentStep,
-    gdprConsent,
-    dataConsent,
-    selectedIndustry,
-    selectedConditions,
-  ]);
+  }, [currentStep, gdprConsent, dataConsent, selectedIndustry]);
 
   // Animate header elements only when on Step 1
   useEffect(() => {
@@ -293,16 +281,7 @@ export default function RegisterPage() {
     return () => ctx.revert();
   }, [currentStep]);
 
-  // Animate conditions when industry changes
-  useEffect(() => {
-    if (selectedIndustry && conditionsRef.current && currentStep === 2) {
-      gsap.fromTo(
-        conditionsRef.current.querySelectorAll(".condition-item"),
-        { opacity: 0, x: -10 },
-        { opacity: 1, x: 0, duration: 0.3, stagger: 0.08, ease: "power2.out" },
-      );
-    }
-  }, [selectedIndustry, currentStep]);
+  // REMOVED: Animation effect for conditions as it's no longer needed
 
   const handleNext = async () => {
     if (!canContinue) return;
@@ -332,11 +311,23 @@ export default function RegisterPage() {
     setShowSetupLoader(true);
 
     try {
-      // Prepare the questionnaire data
-      const questionnaireData: QuestionnaireRequest = {
+      // Prepare the questionnaire data combining all steps
+      const questionnaireData = {
         user_id: Number(session.user.id),
         questioner: {
-          profile: "Completed",
+          // Step 1 Data
+          step1: {
+            gdpr_consent: gdprConsent,
+            data_consent: dataConsent,
+          },
+          // Step 2 Data
+          step2: {
+            industry: selectedIndustry,
+          },
+          // Step 3 is just the completion action, but we can flag it
+          step3: {
+            status: "Completed",
+          },
         },
       };
 
@@ -358,7 +349,6 @@ export default function RegisterPage() {
       toast.success("Profile completed successfully!");
 
       // Update the session to reflect profile completion
-      // This triggers the session update in NextAuth
       await update({
         ...session,
         user: {
@@ -395,17 +385,7 @@ export default function RegisterPage() {
     }
   };
 
-  const toggleCondition = (condition: string) => {
-    setSelectedConditions((prev) =>
-      prev.includes(condition)
-        ? prev.filter((c) => c !== condition)
-        : [...prev, condition],
-    );
-  };
-
-  const availableConditions =
-    INDUSTRIES_DATA.find((ind) => ind.id === selectedIndustry)?.conditions ||
-    [];
+  // REMOVED: toggleCondition function
 
   return (
     <>
@@ -505,45 +485,24 @@ export default function RegisterPage() {
                     Help us personalize your care plan to your unique needs
                   </p>
                 </div>
-                <div className="animate-item rounded-2xl px-6 py-4 md:px-12 md:py-6 mb-8 bg-gradient-to-b from-white/70 via-white/30 to-transparent space-y-6">
+
+                <div className="animate-item rounded-2xl px-6 py-4 md:px-12 md:py-6 mb-8 bg-gradient-to-b from-white/70 via-white/30 to-transparent">
                   <IndustrySelect
                     value={selectedIndustry}
                     onChange={(val) => {
                       setSelectedIndustry(val);
-                      setSelectedConditions([]);
                     }}
-                    options={INDUSTRIES_DATA.map((i) => ({
-                      id: i.id,
-                      name: i.name,
+                    // Mapping the new list to {id, name} format
+                    options={INDUSTRY_LIST.map((industry) => ({
+                      id: industry,
+                      name: industry,
                     }))}
+                    // Note: If your IndustrySelect component supports a className for the dropdown list,
+                    // you can pass it here to control height (e.g., max-h-[150px]).
+                    // Since I don't have the component code, I am assuming it handles the list display.
                   />
 
-                  {selectedIndustry && (
-                    <div ref={conditionsRef} className="space-y-3 pt-2">
-                      <h3 className="text-lg font-medium text-text-gray">
-                        Conditions (select all that apply)
-                      </h3>
-
-                      <div className="space-y-4">
-                        {availableConditions.map((condition) => {
-                          return (
-                            <div key={condition} className="condition-item">
-                              <CustomRadio
-                                checked={selectedConditions.includes(condition)}
-                                onChange={() => toggleCondition(condition)}
-                                label={condition}
-                                className={cn(
-                                  "bg-gradient-to-r from-transparent via-white/30 to-white/50",
-                                  "border border-white rounded-lg",
-                                  "py-2 md:py-1 px-2",
-                                )}
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
+                  {/* Conditions section REMOVED */}
                 </div>
               </div>
             )}
