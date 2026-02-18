@@ -5,12 +5,13 @@ import Image from "next/image";
 
 interface HoliyaLogoProps {
   className?: string;
-  size?: "sm" | "md" | "lg" | "xl" | "xs";
+  size?: "sm" | "md" | "lg" | "xl" | "xs" | "xs2";
   isSimple?: boolean;
 }
 
 const sizes = {
   xs: "w-16 h-16",
+  xs2: "w-30 h-30",
   sm: "w-40 h-40",
   md: "w-48 h-48 md:w-64 md:h-64",
   lg: "w-60 h-60 md:w-72 md:h-72",

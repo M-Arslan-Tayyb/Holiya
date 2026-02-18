@@ -25,11 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={`${montserrat.variable} antialiased min-h-full`}>
-        <div className="container">
-          <Suspense fallback={null}>
-            <SessionProviderWrapper>{children}</SessionProviderWrapper>
-          </Suspense>
-        </div>
+        <Suspense fallback={null}>
+          <SessionProviderWrapper>{children}</SessionProviderWrapper>
+        </Suspense>
       </body>
     </html>
   );

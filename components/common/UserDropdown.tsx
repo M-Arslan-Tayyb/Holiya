@@ -69,9 +69,8 @@ shadow-[0_8px_30px_rgba(117,81,52,0.08)] backdrop-blur-md"
               </AvatarFallback>
             </Avatar>
             <ChevronDown
-              className={`w-4 h-4 text-text-gray/60 transition-transform duration-200 hidden md:block ${
-                isOpen ? "rotate-180" : ""
-              }`}
+              className={`w-4 h-4 text-text-gray/60 transition-transform duration-200 hidden md:block ${isOpen ? "rotate-180" : ""
+                }`}
             />
           </button>
         </DropdownMenuTrigger>

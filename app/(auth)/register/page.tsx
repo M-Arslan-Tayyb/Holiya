@@ -170,7 +170,7 @@ export default function RegisterPage() {
   // Redirect if already authenticated and profile is completed
   useEffect(() => {
     if (session?.user?.userProfileCompletion) {
-      router.push("/home");
+      router.push("/dashboard");
     }
   }, [session, router]);
 
@@ -361,7 +361,7 @@ export default function RegisterPage() {
 
       // Small delay to show success state
       setTimeout(() => {
-        router.push("/home");
+        router.push("/dashboard");
       }, 1000);
     } catch (error: any) {
       console.error("❌ [Register] Profile completion failed:", error);
@@ -497,9 +497,9 @@ export default function RegisterPage() {
                       id: industry,
                       name: industry,
                     }))}
-                    // Note: If your IndustrySelect component supports a className for the dropdown list,
-                    // you can pass it here to control height (e.g., max-h-[150px]).
-                    // Since I don't have the component code, I am assuming it handles the list display.
+                  // Note: If your IndustrySelect component supports a className for the dropdown list,
+                  // you can pass it here to control height (e.g., max-h-[150px]).
+                  // Since I don't have the component code, I am assuming it handles the list display.
                   />
 
                   {/* Conditions section REMOVED */}

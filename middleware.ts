@@ -40,7 +40,6 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/register", req.url));
     }
 
-    // For any other route (including /home), redirect to /register
     console.log(
       "⚠️ [Middleware] Profile incomplete, blocking",
       pathname,
@@ -53,8 +52,7 @@ export async function middleware(req: NextRequest) {
 
   // Authenticated and on login page → go home
   if (token && pathname === "/login") {
-    console.log("✅ [Middleware] Profile complete, /login → /home");
-    return NextResponse.redirect(new URL("/home", req.url));
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   // Authenticated and on register page → go home (profile complete)
@@ -63,11 +61,9 @@ export async function middleware(req: NextRequest) {
     pathname === "/register" &&
     token.userProfileCompletion === true
   ) {
-    console.log("✅ [Middleware] Profile complete, /register → /home");
-    return NextResponse.redirect(new URL("/home", req.url));
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  console.log("✅ [Middleware] Allowing request to:", pathname);
   return NextResponse.next();
 }
 

@@ -35,7 +35,7 @@ export default function LoginPage() {
       if (session.user.userProfileCompletion === false) {
         setShouldRedirect("/register");
       } else {
-        setShouldRedirect("/home");
+        setShouldRedirect("/dashboard");
       }
     }
   }, [session, status]);

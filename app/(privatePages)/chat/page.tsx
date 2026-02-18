@@ -10,7 +10,7 @@ import {
 import gsap from "gsap";
 import { HoliyaLogo } from "@/components/custom/HoliyaLogo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChatSidebar } from "@/components/pages/home/ChatSidebar";
+import { ChatSidebar } from "@/components/pages/chat/ChatSidebar";
 import { Header } from "@/components/common/UserDropdown";
 import { useSession } from "next-auth/react";
 import {
@@ -421,9 +421,8 @@ export default function HomePage() {
       {(step === 2 || step === 3) && (
         <div
           ref={avatarRef}
-          className={`flex gap-3 items-center mt-6 px-4 transition-all duration-300 ${
-            step === 3 ? "ml-8 md:ml-72 lg:ml-80 pt-2" : "ml-0 pt-4"
-          }`}
+          className={`flex gap-3 items-center mt-6 px-4 transition-all duration-300 ${step === 3 ? "ml-8 md:ml-72 lg:ml-80 pt-2" : "ml-0 pt-4"
+            }`}
         >
           <Avatar className="md:w-12 md:h-12 h-10 w-10">
             <AvatarImage
@@ -448,16 +447,14 @@ export default function HomePage() {
 
       {/* Main Content - FIXED RESPONSIVE LAYOUT */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          step === 3 ? "md:ml-72 lg:ml-80" : ""
-        }`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${step === 3 ? "md:ml-72 lg:ml-80" : ""
+          }`}
       >
         <div
-          className={`w-full h-full mx-auto px-3 sm:px-4 ${
-            step === 3
-              ? "max-w-4xl" // Unified max-width for readability
-              : "max-w-2xl pt-8"
-          }`}
+          className={`w-full h-full mx-auto px-3 sm:px-4 ${step === 3
+            ? "max-w-4xl" // Unified max-width for readability
+            : "max-w-2xl pt-8"
+            }`}
         >
           {/* STEP 1 */}
           {step === 1 && (
@@ -521,9 +518,8 @@ export default function HomePage() {
                     msg.role === "user" ? (
                       <div
                         key={msg.id || idx}
-                        className={`flex w-full ${
-                          msg.role === "user" ? "justify-end" : "justify-start"
-                        }`}
+                        className={`flex w-full ${msg.role === "user" ? "justify-end" : "justify-start"
+                          }`}
                       >
                         <div className="bg-white/60 rounded-2xl p-3 sm:p-4 max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] text-sm text-text-gray border border-text-gray/20">
                           {msg.content}
