@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Bell, Briefcase, Menu, UserPlus } from 'lucide-react'
 import { useState } from 'react'
+import { useSession } from "next-auth/react"
 
 interface HeaderProps {
     onMenuClick?: () => void
@@ -16,10 +17,14 @@ export function Header({ onMenuClick }: HeaderProps) {
         setIsOpen(!isOpen)
         onMenuClick?.()
     }
+    const { data: session } = useSession()
+
+    const userName = session?.user?.userName || "User"
+    const industry = session?.user?.industry || "Industry"
 
     return (
         <header className="sticky top-0 z-30 px-3 py-4 w-full backdrop-blur-sm">
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between mt-2">
                 {/* Left section */}
                 <div className="flex items-center gap-6">
                     {/* Hamburger menu for mobile */}
@@ -42,7 +47,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
                         {/* Text */}
                         <div className="hidden sm:flex flex-col justify-center gap-1">
-                            <p className="text-2xl font-medium text-text-gray">Emma</p>
+                            <p className="text-2xl font-medium text-text-gray">{userName}</p>
                             <p className="text-md text-text-gray">Civil Engineer</p>
                         </div>
                     </div>
@@ -60,7 +65,9 @@ export function Header({ onMenuClick }: HeaderProps) {
                         {/* Text Content */}
                         <div className="flex flex-col">
                             <span className="text-sm text-gray-400 font-medium">Industry</span>
-                            <span className="text-lg font-semibold text-[#545454] leading-tight">Construction</span>
+                            <span className="text-lg font-semibold text-[#545454] leading-tight">
+                                {industry}
+                            </span>
                         </div>
                     </div>
 

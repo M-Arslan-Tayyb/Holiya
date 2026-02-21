@@ -43,6 +43,7 @@ export const authOptions: NextAuthOptions = {
             user_email,
             user_profile_completion,
             user_id, // NEW: Get user_id from response
+            industry,
           } = data.data;
 
           // Return user object with actual user_id
@@ -54,6 +55,7 @@ export const authOptions: NextAuthOptions = {
             userName: user_name,
             userEmail: user_email,
             userProfileCompletion: user_profile_completion,
+            industry,
           };
         } catch (error: any) {
           throw new Error(error.message || "Login failed");
@@ -71,6 +73,7 @@ export const authOptions: NextAuthOptions = {
         token.userName = user.userName;
         token.userEmail = user.email;
         token.userProfileCompletion = user.userProfileCompletion;
+        token.industry = user.industry;
       }
 
       // Handle session updates
@@ -78,6 +81,7 @@ export const authOptions: NextAuthOptions = {
         token.userProfileCompletion =
           session.user.userProfileCompletion ?? token.userProfileCompletion;
         token.userName = session.user.userName ?? token.userName;
+        token.industry = session.user.industry ?? token.industry;
       }
 
       return token;
@@ -93,6 +97,7 @@ export const authOptions: NextAuthOptions = {
         userName: token.userName,
         userEmail: token.userEmail,
         userProfileCompletion: token.userProfileCompletion,
+        industry: token.industry,
       };
 
       return session;

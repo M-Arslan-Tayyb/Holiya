@@ -19,6 +19,7 @@ export interface LoginData {
   user_email: string;
   user_profile_completion: boolean;
   user_id: number;
+  industry: string;
 }
 
 export interface ApiResponse<T> {
@@ -28,9 +29,9 @@ export interface ApiResponse<T> {
   httpStatusCode: number;
 }
 
-export interface LoginResponse extends ApiResponse<LoginData> {}
+export interface LoginResponse extends ApiResponse<LoginData> { }
 
-export interface SignupResponse extends ApiResponse<number> {}
+export interface SignupResponse extends ApiResponse<number> { }
 
 export interface QuestionnaireRequest {
   user_id: number;

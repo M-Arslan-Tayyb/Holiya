@@ -7,7 +7,7 @@ import { SIDEBAR_MENU } from '@/data/sidebar-menu'
 import { HoliyaLogo } from '@/components/custom/HoliyaLogo'
 import { Button } from '@/components/ui/button'
 import { LogOut, X } from 'lucide-react'
-import { signOut } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 
 interface SidebarProps {
@@ -25,7 +25,9 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             toast.error("Failed to sign out");
         }
     };
+    const { data: session } = useSession()
 
+    const userName = session?.user?.userName || "User"
     return (
         <>
             <aside
@@ -98,7 +100,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                                 />
                             </div>
                             <div className="text-left">
-                                <p className="text-sm font-bold text-[#545454]">Emma Smith</p>
+                                <p className="text-sm font-bold text-[#545454]">{userName}</p>
                             </div>
                         </button>
                     </Link>
