@@ -4,6 +4,7 @@ import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
 import SessionProviderWrapper from "./providers/sessionProviderWrapper";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -26,7 +27,7 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body className={`${montserrat.variable} antialiased min-h-full`}>
         <Suspense fallback={null}>
-          <SessionProviderWrapper>{children}</SessionProviderWrapper>
+          <SessionProviderWrapper><TooltipProvider>{children}</TooltipProvider></SessionProviderWrapper>
         </Suspense>
       </body>
     </html>

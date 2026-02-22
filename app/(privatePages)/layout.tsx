@@ -3,6 +3,7 @@
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { COLORS, FONTS } from "@/lib/theme";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function PrivateLayout({
   children,
@@ -28,6 +29,7 @@ export default function PrivateLayout({
   return (
     <>
       {children}
+
 
       {showModal && (
         <div

@@ -48,7 +48,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                         {/* Text */}
                         <div className="hidden sm:flex flex-col justify-center gap-1">
                             <p className="text-2xl font-medium text-text-gray">{userName}</p>
-                            <p className="text-md text-text-gray">Civil Engineer</p>
+                            <p className="text-md text-text-gray">{industry}</p>
                         </div>
                     </div>
                 </div>
@@ -56,7 +56,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                 {/* Right section */}
                 <div className="flex items-center gap-16">
                     {/* Industry Selector - Matching Screenshot */}
-                    <div className="flex items-center gap-4 rounded-2xl p-2 pr-4">
+                    <div className="flex items-center gap-4 rounded-2xl p-2">
                         {/* Icon Box - Peach/Orange Background */}
                         <div className="w-14 h-14 bg-[#F6C6A4] rounded-2xl flex items-center justify-center flex-shrink-0">
                             <Briefcase className="w-5 h-5 text-[#545454]" />
@@ -71,11 +71,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                         </div>
                     </div>
 
-                    {/* Bell Icon - Border Style with Notification Dot */}
-                    <button className="w-14 h-14 border mr-2 border-gray-200 rounded-2xl flex items-center justify-center relative hover:border-gray-300 transition-colors flex-shrink-0 hover:bg-white">
-                        <Bell className="w-5 h-5 text-[#545454]" />
-                        <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full"></span>
-                    </button>
+
                 </div>
             </div>
         </header>

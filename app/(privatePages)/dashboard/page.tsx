@@ -7,44 +7,58 @@ import { SymptomTrendsCard } from '@/components/pages/dashboard/cards/symptom-tr
 import { IntegratedAppsCard } from '@/components/pages/dashboard/cards/integrated-apps-card'
 import { UpcomingEventsCard } from '@/components/pages/dashboard/cards/upcoming-events-card'
 import { MessageCircle } from 'lucide-react'
+import { useGetUserDashboardFullQuery } from '@/services/features/dashboard/api'
+import { useSession } from 'next-auth/react'
 
 export default function DashboardPage() {
+    const session = useSession()
+    const userId = session.data?.user?.id
+
+    // const { data, isLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) })
+    const { data, isLoading } = useGetUserDashboardFullQuery({ user_id: 35 })
+
+
+    const stressLevel = data?.data?.stress_level
+    console.log(stressLevel)
     return (
         <>
             {/* Main content */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* Left column */}
-                {/* <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 space-y-6">
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <WorkEnvironmentCard />
-                        <HealthOverviewCard />
+                        <WorkEnvironmentCard
+                            stressLevel={stressLevel}
+                            isLoading={isLoading}
+                        />
+                        <HealthOverviewCard
+                            healthOverview={data?.data?.health_overview}
+                            isLoading={isLoading}
+                        />
                     </div>
 
-                    <HealthProgramCard />
+                    {/* <HealthProgramCard /> */}
 
 
-                </div> */}
+                </div>
 
                 {/* Right column */}
-                {/* <div className="lg:col-span-1 space-y-6">
-                    <SymptomTrendsCard />
-                    <IntegratedAppsCard />
+                <div className="lg:col-span-1 space-y-6">
+                    <SymptomTrendsCard
+                        symptomTrends={data?.data?.symptom_trends}
+                        isLoading={isLoading}
+                    />
+                    {/* <IntegratedAppsCard /> */}
 
                     <div className="max-h-80 overflow-y-auto">
-                        <UpcomingEventsCard />
+                        {/* <UpcomingEventsCard /> */}
                     </div>
-                </div> */}
+                </div>
             </div>
 
-            {/* Floating Chat Button */}
-            <button
-                className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-white border-2 border-gray-200 text-[#545454] shadow-lg hover:border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center z-20"
-                aria-label="Open chat"
-            >
-                <MessageCircle className="w-8 h-8" />
-            </button>
+
         </>
     )
 }

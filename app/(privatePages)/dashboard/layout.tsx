@@ -27,7 +27,7 @@ export default function DashboardLayout({
             {/* Content Area */}
             <div className="flex-1 min-w-0 lg:ml-60">
                 <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-                <main className="p-6 lg:p-4">{children}</main>
+                <main className="p-4 lg:p-2 ">{children}</main>
             </div>
         </div>
     );
