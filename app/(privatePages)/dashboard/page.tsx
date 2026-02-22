@@ -14,8 +14,8 @@ export default function DashboardPage() {
     const session = useSession()
     const userId = session.data?.user?.id
 
-    // const { data, isLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) })
-    const { data, isLoading } = useGetUserDashboardFullQuery({ user_id: 35 })
+    const { data, isLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) })
+    // const { data, isLoading } = useGetUserDashboardFullQuery({ user_id: 35 })
 
 
     const stressLevel = data?.data?.stress_level
