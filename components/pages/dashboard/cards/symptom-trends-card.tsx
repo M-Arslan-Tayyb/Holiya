@@ -60,6 +60,7 @@ const transformSymptomData = (symptoms: SymptomTrend[], showAll: boolean = false
 
 export function SymptomTrendsCard({ symptomTrends, isLoading = false }: SymptomTrendsCardProps) {
     const [isFullscreen, setIsFullscreen] = useState(false)
+    const hasData = symptomTrends?.has_data ?? false
 
     // Loading State
     if (isLoading) {
@@ -80,12 +81,15 @@ export function SymptomTrendsCard({ symptomTrends, isLoading = false }: SymptomT
                 <p className="text-base text-[#545454] opacity-70 mb-6">
                     Tracking how often you experienced certain symptoms
                 </p>
-                <div className="flex items-center justify-center h-64 text-[#545454] opacity-70">
-                    <p className="text-sm">No symptom data available yet</p>
+                {/* 👉 Updated informative message */}
+                <div className="flex flex-col items-center justify-center h-64 text-[#545454] opacity-70">
+                    <p className="text-sm">No data available yet</p>
+                    <p className="text-xs opacity-50 mt-1">Complete your assessment to see insights</p>
                 </div>
             </Card>
         )
     }
+
 
     const symptoms = symptomTrends.symptoms
     const hasMultipleSymptoms = symptoms.length > 2

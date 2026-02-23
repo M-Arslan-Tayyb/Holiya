@@ -18,11 +18,16 @@ interface HealthOverviewCardProps {
 }
 
 export function HealthOverviewCard({ healthOverview, isLoading = false }: HealthOverviewCardProps) {
-    // Prepare pie chart data
-    const pieData = healthOverview?.has_data
+    // Safely extract values with fallbacks
+    const hasData = healthOverview?.has_data ?? false
+    const improvementPercentage = healthOverview?.improvement_percentage ?? 0
+    const currentConditions = healthOverview?.current_conditions ?? []
+
+    // Prepare pie chart data - safe null handling
+    const pieData = hasData
         ? [
-            { name: 'Improvement', value: healthOverview.improvement_percentage },
-            { name: 'Remaining', value: 100 - healthOverview.improvement_percentage },
+            { name: 'Improvement', value: improvementPercentage },
+            { name: 'Remaining', value: Math.max(0, 100 - improvementPercentage) },
         ]
         : [
             { name: 'Improvement', value: 0 },
@@ -43,8 +48,8 @@ export function HealthOverviewCard({ healthOverview, isLoading = false }: Health
         )
     }
 
-    // No Data State
-    if (!healthOverview?.has_data) {
+    // No Data State - Informative message, same layout/styles
+    if (!hasData) {
         return (
             <Card
                 className="border-none p-4 rounded-3xl w-full lg:w-[110%] mx-auto
@@ -58,7 +63,13 @@ export function HealthOverviewCard({ healthOverview, isLoading = false }: Health
                         </div>
                         <div className="flex flex-col flex-wrap gap-2">
                             <div className="text-sm text-[#545454] opacity-70">Current conditions</div>
-                            <div className="text-sm text-[#545454] opacity-70">No conditions recorded</div>
+                            {/* 👉 Informative no-data message */}
+                            <div className="text-sm text-[#545454] opacity-70">
+                                No data available yet
+                            </div>
+                            <div className="text-xs text-[#545454] opacity-50 mt-1">
+                                Complete your assessment to see insights
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -95,7 +106,7 @@ export function HealthOverviewCard({ healthOverview, isLoading = false }: Health
                             <div className="text-sm text-[#545454] opacity-70">Current conditions</div>
 
                             <div className="flex flex-col gap-2 overflow-y-auto max-h-[72px] pr-2 -mr-2">
-                                {healthOverview.current_conditions.slice(0, 6).map((condition, index) => {
+                                {currentConditions.slice(0, 6).map((condition, index) => {
                                     const firstWord = condition.split(' ')[0]
                                     const isLong = condition.length > 20
 
@@ -149,7 +160,7 @@ export function HealthOverviewCard({ healthOverview, isLoading = false }: Health
                 {/* Centralized Text Overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                     <span className="text-[26px] md:text-[32px] font-sans text-[#545454] leading-none">
-                        {healthOverview.improvement_percentage}%
+                        {improvementPercentage}%
                     </span>
                     <span className="text-[10px] md:text-[12px] font-medium text-[#545454] opacity-50 mt-1">
                         Improvement

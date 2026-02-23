@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { User, Settings, FileText, LogOut, ChevronDown } from "lucide-react";
+import { User, Settings, FileText, LogOut, ChevronDown, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -40,15 +40,38 @@ flex items-center justify-between px-4 md:px-8
  backdrop-blur-md"
 
     >
-      {/* Logo */}
-      <Image
-        src="/holiya-text-logo-with-des.svg"
-        alt="Holiya"
-        width={140}
-        height={36}
-        className="h-9 md:h-14 w-auto object-contain cursor-pointer relative top-3"
-        onClick={() => router.push("/dashboard")}
-      />
+
+
+      {/* Left Section: Back + Logo */}
+      <div className="flex items-center gap-3">
+        {/* Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="
+    flex items-center justify-center
+    p-2
+    text-[#545454]
+    hover:text-[#CA925F]
+    transition-colors duration-200
+    relative top-1
+    border border-[#755134] rounded-full
+    hover:border-[#CA925F]
+    hover:bg-[#F7EFE5]/70
+  "
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+
+        {/* Logo */}
+        <Image
+          src="/holiya-text-logo-with-des.svg"
+          alt="Holiya"
+          width={140}
+          height={36}
+          className="h-9 md:h-14 w-auto object-contain cursor-pointer relative top-3"
+          onClick={() => router.push("/dashboard")}
+        />
+      </div>
 
       {/* User Dropdown */}
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
