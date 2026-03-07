@@ -9,3 +9,25 @@ export interface DashboardFullData {
     health_overview: any;
     symptom_trends: any;
 }
+
+export interface TimelineStep {
+    week: string;
+    title: string;
+    status: 'Completed' | 'Upcoming';
+}
+
+export interface HealthTask {
+    id: number;
+    icon: string;
+    title: string;
+    status: 'Completed' | 'In Progress' | 'Upcoming';
+    progress: string | null;
+    progressPercentage?: number;
+}
+
+export interface HealthPlanData {
+    plan_name: string;
+    duration: string;
+    timeline_steps: TimelineStep[];
+    tasks: HealthTask[];
+}

@@ -101,7 +101,7 @@ export default function HomePage() {
 
   // --- SYNC STREAMING CONTENT TO MESSAGES ---
   useEffect(() => {
-    if (isStreaming) {
+    if (streamedContent) {
       setMessages((prev) => {
         const newMessages = [...prev];
         const lastMsg = newMessages[newMessages.length - 1];
@@ -378,26 +378,69 @@ export default function HomePage() {
     }
   };
 
+  // Preprocess markdown to fix common AI response issues
+  const preprocessMarkdown = (text: string): string => {
+    let processed = text;
+    // Replace bullet character • with standard markdown dash
+    processed = processed.replace(/^[•]/gm, '-');
+    processed = processed.replace(/\n[•]/g, '\n-');
+    return processed;
+  };
+
   // Custom markdown components
   const markdownComponents = {
-    p: ({ children }: any) => (
-      <p className="mb-2 last:mb-0 leading-relaxed text-text-gray">
-        {children}
-      </p>
+    h1: ({ children }: any) => (
+      <h1 className="text-xl font-bold text-[#333] mb-3 mt-1">{children}</h1>
     ),
-    // Changed text color to darker shade so bold text is visible
+    h2: ({ children }: any) => (
+      <h2 className="text-lg font-bold text-[#333] mb-2 mt-3">{children}</h2>
+    ),
+    h3: ({ children }: any) => (
+      <h3 className="text-base font-bold text-[#444] mb-2 mt-2">{children}</h3>
+    ),
+    p: ({ children }: any) => (
+      <p className="mb-3 last:mb-0 leading-relaxed text-text-gray">{children}</p>
+    ),
     strong: ({ children }: any) => (
-      <strong className="font-bold text-text-gray-900">{children}</strong>
+      <strong className="font-semibold text-[#333]">{children}</strong>
+    ),
+    em: ({ children }: any) => (
+      <em className="italic text-text-gray/90">{children}</em>
     ),
     ul: ({ children }: any) => (
-      <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>
+      <ul className="list-disc pl-5 mb-3 space-y-1.5">{children}</ul>
     ),
-    li: ({ children }: any) => <li className="leading-relaxed">{children}</li>,
-    hr: () => <hr className="my-3 border-text-gray/20" />,
-    em: ({ children }: any) => (
-      <em className="italic font-serif">{children}</em>
+    ol: ({ children }: any) => (
+      <ol className="list-decimal pl-5 mb-3 space-y-1.5">{children}</ol>
+    ),
+    li: ({ children }: any) => (
+      <li className="leading-relaxed text-text-gray">{children}</li>
+    ),
+    hr: () => <hr className="my-4 border-gray-300/50" />,
+    blockquote: ({ children }: any) => (
+      <blockquote className="border-l-3 border-primary/40 pl-3 my-3 italic text-text-gray/80">
+        {children}
+      </blockquote>
+    ),
+    code: ({ inline, children, ...props }: any) =>
+      inline ? (
+        <code className="bg-gray-100 text-[#c7254e] text-[13px] px-1.5 py-0.5 rounded font-mono" {...props}>
+          {children}
+        </code>
+      ) : (
+        <pre className="bg-gray-100 rounded-lg p-3 my-3 overflow-x-auto">
+          <code className="text-[13px] font-mono text-[#333]" {...props}>
+            {children}
+          </code>
+        </pre>
+      ),
+    a: ({ href, children }: any) => (
+      <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80 transition-colors">
+        {children}
+      </a>
     ),
   };
+
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent">
@@ -543,7 +586,7 @@ export default function HomePage() {
                                 remarkPlugins={[remarkGfm]}
                                 components={markdownComponents}
                               >
-                                {msg.content}
+                                {preprocessMarkdown(msg.content)}
                               </ReactMarkdown>
                             </div>
                           )}

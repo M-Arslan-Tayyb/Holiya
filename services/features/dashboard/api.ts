@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { axiosBaseQuery } from "@/services/rtkQApi";
-import { DashboardFullData } from "./types";
+import { DashboardFullData, HealthPlanData } from "./types";
 import { ApiResponse } from "../auth/types";
 
 export const dashboardApi = createApi({
@@ -21,9 +21,22 @@ export const dashboardApi = createApi({
             providesTags: ["Dashboard"],
         }),
 
+        // Get Health Plan Data
+        getHealthPlan: builder.query<
+            ApiResponse<HealthPlanData>,
+            { user_id: number }
+        >({
+            query: ({ user_id }) => ({
+                url: `health-plan/dashboard?user_id=${user_id}`,
+                method: "GET",
+            }),
+            providesTags: ["Dashboard"],
+        }),
+
     }),
 });
 
 export const {
     useGetUserDashboardFullQuery,
+    useGetHealthPlanQuery,
 } = dashboardApi;

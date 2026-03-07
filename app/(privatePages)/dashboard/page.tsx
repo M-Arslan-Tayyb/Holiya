@@ -15,7 +15,7 @@ export default function DashboardPage() {
     const userId = session.data?.user?.id
 
     // const { data, isLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) })
-    const { data, isLoading } = useGetUserDashboardFullQuery({ user_id: 35 })
+    const { data, isLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) })
 
 
     const stressLevel = data?.data?.stress_level
@@ -38,9 +38,9 @@ export default function DashboardPage() {
                             isLoading={isLoading}
                         />
                     </div>
-
-                    {/* <HealthProgramCard /> */}
-
+                    <div className="grid grid-cols-1">
+                        <HealthProgramCard userId={Number(userId)} />
+                    </div>
 
                 </div>
 
