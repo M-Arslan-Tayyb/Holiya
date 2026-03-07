@@ -7,19 +7,35 @@ import { SymptomTrendsCard } from '@/components/pages/dashboard/cards/symptom-tr
 import { IntegratedAppsCard } from '@/components/pages/dashboard/cards/integrated-apps-card'
 import { UpcomingEventsCard } from '@/components/pages/dashboard/cards/upcoming-events-card'
 import { MessageCircle } from 'lucide-react'
-import { useGetUserDashboardFullQuery } from '@/services/features/dashboard/api'
+import { useGetUserDashboardFullQuery, useGetHealthPlanQuery } from '@/services/features/dashboard/api'
 import { useSession } from 'next-auth/react'
+import { Loader } from '@/components/common/Loader'
 
 export default function DashboardPage() {
     const session = useSession()
     const userId = session.data?.user?.id
 
-    // const { data, isLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) })
-    const { data, isLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) })
+    const { data: dashboardData, isLoading: isDashboardLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) }, { skip: !userId })
+    // const { data: dashboardData, isLoading: isDashboardLoading } = useGetUserDashboardFullQuery({ user_id: 35 }, { skip: !userId })
+
+    const { isLoading: isHealthPlanLoading } = useGetHealthPlanQuery({ user_id: Number(userId) }, { skip: !userId })
+    // const { isLoading: isHealthPlanLoading } = useGetHealthPlanQuery({ user_id: 18 }, { skip: !userId })
 
 
-    const stressLevel = data?.data?.stress_level
+    const isPageLoading = isDashboardLoading || isHealthPlanLoading
+
+
+    const stressLevel = dashboardData?.data?.stress_level
     console.log(stressLevel)
+
+    if (isPageLoading) {
+        return (
+            <div className="loader-container">
+                <Loader size="default" />
+            </div>
+        )
+    }
+
     return (
         <>
             {/* Main content */}
@@ -31,15 +47,17 @@ export default function DashboardPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <WorkEnvironmentCard
                             stressLevel={stressLevel}
-                            isLoading={isLoading}
+                            isLoading={isDashboardLoading}
                         />
                         <HealthOverviewCard
-                            healthOverview={data?.data?.health_overview}
-                            isLoading={isLoading}
+                            healthOverview={dashboardData?.data?.health_overview}
+                            isLoading={isDashboardLoading}
                         />
                     </div>
                     <div className="grid grid-cols-1">
                         <HealthProgramCard userId={Number(userId)} />
+
+
                     </div>
 
                 </div>
@@ -47,8 +65,8 @@ export default function DashboardPage() {
                 {/* Right column */}
                 <div className="lg:col-span-1 space-y-6">
                     <SymptomTrendsCard
-                        symptomTrends={data?.data?.symptom_trends}
-                        isLoading={isLoading}
+                        symptomTrends={dashboardData?.data?.symptom_trends}
+                        isLoading={isDashboardLoading}
                     />
                     {/* <IntegratedAppsCard /> */}
 

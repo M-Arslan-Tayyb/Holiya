@@ -68,16 +68,6 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
         }), [items]
     )
 
-    if (isLoading) {
-        return (
-            <Card className="border-none p-4 rounded-3xl w-full bg-[linear-gradient(to_bottom,rgba(255,255,255,0.45)_0%,#F7EFE5_70%,#FBE4D6_100%)]">
-                <div className="flex items-center justify-center h-64">
-                    <Loader2 className="w-6 h-6 text-[#CA925F] animate-spin" />
-
-                </div>
-            </Card>
-        )
-    }
 
     if (error || !healthPlanData || data == null) {
         return (
