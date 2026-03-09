@@ -36,19 +36,20 @@ export const authOptions: NextAuthOptions = {
             throw new Error(data.message || "Authentication failed");
           }
 
-          // UPDATED: Destructure user_id as well
+          // UPDATED: Destructure user_id and role
           const {
             access_token,
             user_name,
             user_email,
             user_profile_completion,
-            user_id, // NEW: Get user_id from response
+            user_id,
             industry,
+            role,
           } = data.data;
 
-          // Return user object with actual user_id
+          // Return user object with actual user_id and role
           return {
-            id: String(user_id), // UPDATED: Use actual user_id instead of email
+            id: String(user_id),
             email: user_email,
             name: user_name,
             accessToken: access_token,
@@ -56,6 +57,7 @@ export const authOptions: NextAuthOptions = {
             userEmail: user_email,
             userProfileCompletion: user_profile_completion,
             industry,
+            role,
           };
         } catch (error: any) {
           throw new Error(error.message || "Login failed");
@@ -69,11 +71,12 @@ export const authOptions: NextAuthOptions = {
       // Initial sign in
       if (user) {
         token.accessToken = user.accessToken;
-        token.userId = user.id; // Now contains actual user_id
+        token.userId = user.id;
         token.userName = user.userName;
         token.userEmail = user.email;
         token.userProfileCompletion = user.userProfileCompletion;
         token.industry = user.industry;
+        token.role = user.role;
       }
 
       // Handle session updates
@@ -82,6 +85,7 @@ export const authOptions: NextAuthOptions = {
           session.user.userProfileCompletion ?? token.userProfileCompletion;
         token.userName = session.user.userName ?? token.userName;
         token.industry = session.user.industry ?? token.industry;
+        token.role = session.user.role ?? token.role;
       }
 
       return token;
@@ -91,13 +95,14 @@ export const authOptions: NextAuthOptions = {
       // Send properties to the client
       session.accessToken = token.accessToken;
       session.user = {
-        id: token.userId, // Actual user_id (e.g., "13")
+        id: token.userId,
         email: token.userEmail,
         name: token.userName,
         userName: token.userName,
         userEmail: token.userEmail,
         userProfileCompletion: token.userProfileCompletion,
         industry: token.industry,
+        role: token.role,
       };
 
       return session;

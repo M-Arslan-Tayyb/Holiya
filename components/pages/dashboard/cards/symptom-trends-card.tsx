@@ -11,8 +11,9 @@ import {
     Legend,
     ResponsiveContainer,
 } from 'recharts'
-import { Loader2, Maximize2, Minimize2 } from 'lucide-react'
+import { Loader2, Maximize2, Minimize2, Feather, Activity, Stethoscope } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import Image from 'next/image'
 
 interface SymptomTrend {
     name: string
@@ -69,7 +70,7 @@ export function SymptomTrendsCard({
 
     if (isLoading) {
         return (
-            <Card className="bg-[linear-gradient(135deg,#FFD6D0_0%,#F7EFE5_50%,#FFFFFF_100%)] gap-0 border-none p-4 rounded-2xl lg:ml-9 lg:w-[90%] w-full">
+            <Card className="bg-[linear-gradient(135deg,#FFD6D0_0%,#F7EFE5_50%,#FFFFFF_100%)] gap-0 border-none p-4 rounded-2xl w-full h-full">
                 <div className="flex items-center justify-center min-h-[280px]">
                     <Loader2 className="w-6 h-6 text-[#CA925F] animate-spin" />
                 </div>
@@ -79,7 +80,7 @@ export function SymptomTrendsCard({
 
     if (!symptomTrends?.has_data) {
         return (
-            <Card className="bg-[linear-gradient(135deg,#FFD6D0_0%,#F7EFE5_50%,#FFFFFF_100%)] gap-0 border-none p-4 rounded-2xl lg:ml-9 lg:w-[90%] w-full">
+            <Card className="bg-[linear-gradient(135deg,#FFD6D0_0%,#F7EFE5_50%,#FFFFFF_100%)] gap-0 border-none p-4 rounded-2xl w-full h-full">
                 <h3 className="text-lg font-semibold text-[#545454] opacity-70 mb-1 font-sans">
                     Symptom trends
                 </h3>
@@ -134,7 +135,7 @@ export function SymptomTrendsCard({
         const topSymptoms = symptoms.slice(0, 2)
 
         return (
-            <Card className="bg-[linear-gradient(135deg,#FFD6D0_0%,#F7EFE5_50%,#FFFFFF_100%)] gap-0 border-none p-4 rounded-2xl lg:ml-9 lg:w-[90%] w-full relative">
+            <Card className="bg-[linear-gradient(135deg,#FFD6D0_0%,#F7EFE5_50%,#FFFFFF_100%)] gap-0 border-none p-4 rounded-3xl w-full h-full relative">
                 <div className="flex items-center justify-between mb-1">
                     <h3 className="text-lg font-semibold text-[#545454] opacity-70 font-sans">
                         Symptom trends
@@ -175,12 +176,86 @@ export function SymptomTrendsCard({
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
-
                 {hasMultipleSymptoms && (
                     <p className="text-xs text-[#545454] opacity-50 mt-2 text-center">
                         +{symptoms.length - 2} more symptoms. Click to view all
                     </p>
                 )}
+
+                {/* Integrated App & Wearable Device Section */}
+                <div className="mt-6 mb-2 p-6 px-8 rounded-2xl bg-[#FBE4D6] shadow-sm flex flex-wrap justify-between items-center gap-2">
+                    {/* Integrated App */}
+                    <div className="flex flex-col gap-3">
+                        <span className="text-[15px] font-semibold text-[#545454]/80">Integrated App</span>
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-[#E94E77] flex items-center justify-center shadow-sm">
+                                <Feather className="w-6 h-6 text-white rotate-45" />
+                            </div>
+                            <span className="text-sm font-medium text-text-gray">Flo</span>
+                        </div>
+                    </div>
+
+                    {/* Wearable Device */}
+                    <div className="flex flex-col gap-3">
+                        <span className="text-[15px] font-semibold text-[#545454]/80">Wearable Device</span>
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-[#E8DCCF] flex items-center justify-center shadow-sm">
+                                <Stethoscope className="w-6 h-6 text-[#A08E7D]" />
+                            </div>
+                            <span className="text-sm font-medium text-text-gray">Tens Unit</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Next Event & Next Appointment Section */}
+                <div className="mt-4 p-3 rounded-2xl bg-white/80 shadow-sm flex flex-col gap-4">
+                    {/* Next Event */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="relative w-16 h-16 rounded-xl overflow-hidden shadow-sm">
+                                <Image
+                                    src="/breathword-image.jpg"
+                                    alt="Breathwork"
+                                    fill
+                                    className="object-cover"
+                                    unoptimized
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-xs text-[#545454]/60">Next event</span>
+                                <span className="text-base font-bold text-[#4A4A4A]">Breathwork</span>
+                                <span className="text-xs text-[#545454]/60 font-medium">Wed, 27 Aug 2:00 PM</span>
+                            </div>
+                        </div>
+                        <span className="px-3 py-2 rounded-full bg-[#FBE4D6] text-text-gray text-[11px] font-bold">Upcoming</span>
+                    </div>
+
+                    <div className="h-[1.5px] w-full bg-gray-100" />
+
+                    {/* Next Appointment */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="relative w-16 h-16 rounded-xl overflow-hidden shadow-sm">
+                                <Image
+                                    src="/orthopadic-image2.jpg"
+                                    alt="Orthopaedist"
+                                    fill
+                                    className="object-cover"
+                                    priority
+                                    unoptimized
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-xs text-[#545454]/60">Next Appointment</span>
+                                <span className="text-base font-bold text-[#4A4A4A]">Orthopaedist</span>
+                                <span className="text-xs text-[#545454]/60 font-medium">Mon, 1 Sep 3:00 PM</span>
+                            </div>
+                        </div>
+                        <span className="px-3 py-2 rounded-full bg-[#FBE4D6] text-text-gray text-[11px] font-bold">Upcoming</span>
+                    </div>
+                </div>
+
+
             </Card>
         )
     }

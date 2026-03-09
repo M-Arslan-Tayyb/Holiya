@@ -4,7 +4,6 @@ import { WorkEnvironmentCard } from '@/components/pages/dashboard/cards/work-env
 import { HealthOverviewCard } from '@/components/pages/dashboard/cards/health-overview-card'
 import { HealthProgramCard } from '@/components/pages/dashboard/cards/health-program-card'
 import { SymptomTrendsCard } from '@/components/pages/dashboard/cards/symptom-trends-card'
-import { IntegratedAppsCard } from '@/components/pages/dashboard/cards/integrated-apps-card'
 import { UpcomingEventsCard } from '@/components/pages/dashboard/cards/upcoming-events-card'
 import { MessageCircle } from 'lucide-react'
 import { useGetUserDashboardFullQuery, useGetHealthPlanQuery } from '@/services/features/dashboard/api'
@@ -15,11 +14,11 @@ export default function DashboardPage() {
     const session = useSession()
     const userId = session.data?.user?.id
 
-    const { data: dashboardData, isLoading: isDashboardLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) }, { skip: !userId })
-    // const { data: dashboardData, isLoading: isDashboardLoading } = useGetUserDashboardFullQuery({ user_id: 35 }, { skip: !userId })
+    // const { data: dashboardData, isLoading: isDashboardLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) }, { skip: !userId })
+    const { data: dashboardData, isLoading: isDashboardLoading } = useGetUserDashboardFullQuery({ user_id: 35 }, { skip: !userId })
 
-    const { isLoading: isHealthPlanLoading } = useGetHealthPlanQuery({ user_id: Number(userId) }, { skip: !userId })
-    // const { isLoading: isHealthPlanLoading } = useGetHealthPlanQuery({ user_id: 18 }, { skip: !userId })
+    // const { isLoading: isHealthPlanLoading } = useGetHealthPlanQuery({ user_id: Number(userId) }, { skip: !userId })
+    const { isLoading: isHealthPlanLoading } = useGetHealthPlanQuery({ user_id: 18 }, { skip: !userId })
 
 
     const isPageLoading = isDashboardLoading || isHealthPlanLoading
@@ -39,10 +38,10 @@ export default function DashboardPage() {
     return (
         <>
             {/* Main content */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
 
                 {/* Left column */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 flex flex-col gap-6">
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <WorkEnvironmentCard
@@ -54,25 +53,27 @@ export default function DashboardPage() {
                             isLoading={isDashboardLoading}
                         />
                     </div>
-                    <div className="grid grid-cols-1">
-                        <HealthProgramCard userId={Number(userId)} />
-
-
+                    <div className="flex-1">
+                        {/* <HealthProgramCard userId={Number(userId)} />
+                         */}
+                        <HealthProgramCard userId={18} />
                     </div>
 
                 </div>
 
                 {/* Right column */}
-                <div className="lg:col-span-1 space-y-6">
-                    <SymptomTrendsCard
-                        symptomTrends={dashboardData?.data?.symptom_trends}
-                        isLoading={isDashboardLoading}
-                    />
+                <div className="lg:col-span-1 flex flex-col gap-6">
+                    <div className="flex-1">
+                        <SymptomTrendsCard
+                            symptomTrends={dashboardData?.data?.symptom_trends}
+                            isLoading={isDashboardLoading}
+                        />
+                    </div>
                     {/* <IntegratedAppsCard /> */}
 
-                    <div className="max-h-80 overflow-y-auto">
-                        {/* <UpcomingEventsCard /> */}
-                    </div>
+                    {/* <div className="max-h-80 overflow-y-auto">
+                        <UpcomingEventsCard />
+                    </div> */}
                 </div>
             </div>
 

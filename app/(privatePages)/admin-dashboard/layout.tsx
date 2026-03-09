@@ -3,10 +3,8 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/pages/dashboard/sidebar";
 import { Header } from "@/components/pages/dashboard/header";
-import { MessageCircle, MessageCircleMore } from "lucide-react";
-import Link from "next/link";
 
-export default function DashboardLayout({
+export default function AdminDashboardLayout({
     children,
 }: {
     children: React.ReactNode;
@@ -27,17 +25,9 @@ export default function DashboardLayout({
             )}
 
             {/* Content Area */}
-            <div className="flex-1 min-w-0 lg:ml-60 relative">
+            <div className="flex-1 min-w-0 lg:ml-60">
                 <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
                 <main className="p-4 lg:p-2 ">{children}</main>
-
-                {/* Floating Chat Button */}
-                <Link
-                    href="/chat"
-                    className="fixed bottom-4 right-8 w-16 h-16 bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 flex items-center justify-center hover:scale-110 transition-transform z-50 group"
-                >
-                    <MessageCircleMore className="w-8 h-8 text-[#1A1A1A] group-hover:text-[#CA925F] transition-colors" />
-                </Link>
             </div>
         </div>
     );

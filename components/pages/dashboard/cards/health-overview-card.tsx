@@ -52,7 +52,7 @@ export function HealthOverviewCard({ healthOverview, isLoading = false }: Health
     if (!hasData) {
         return (
             <Card
-                className="border-none p-4 rounded-3xl w-full lg:w-[110%] mx-auto
+                className="border-none p-4 rounded-3xl w-full
                 bg-[linear-gradient(to_bottom,#FBE4D6_0%,#F7EFE5_60%,rgba(255,255,255,0.65)_100%)]
                 flex flex-col lg:flex-row justify-between gap-8 lg:gap-6"
             >
@@ -90,7 +90,7 @@ export function HealthOverviewCard({ healthOverview, isLoading = false }: Health
     // Has Data State - Exact style preserved
     return (
         <Card
-            className="border-none p-4 rounded-3xl w-full lg:w-[110%] mx-auto
+            className="border-none p-4 rounded-3xl w-full
             bg-[linear-gradient(to_bottom,#FBE4D6_0%,#F7EFE5_60%,rgba(255,255,255,0.65)_100%)]
             flex flex-col lg:flex-row justify-between gap-8 lg:gap-6"
         >

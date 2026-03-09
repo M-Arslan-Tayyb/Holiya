@@ -61,7 +61,10 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
                     {/* Menu Items */}
                     <nav className="flex flex-col gap-2 lg:gap-1">
-                        {SIDEBAR_MENU.map((item) => {
+                        {SIDEBAR_MENU.filter((item) => {
+                            if (!item.roles) return true;
+                            return session?.user?.role !== undefined && item.roles.includes(session.user.role);
+                        }).map((item) => {
                             const isActive =
                                 pathname === item.href || pathname.startsWith(item.href + "/");
                             const Icon = item.icon;

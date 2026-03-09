@@ -12,6 +12,7 @@ declare module "next-auth" {
       userEmail: string;
       userProfileCompletion: boolean;
       industry: string;
+      role: number;
     };
   }
 
@@ -24,6 +25,7 @@ declare module "next-auth" {
     userEmail: string;
     userProfileCompletion: boolean;
     industry: string;
+    role: number;
   }
 }
 
@@ -35,5 +37,6 @@ declare module "next-auth/jwt" {
     userEmail: string;
     userProfileCompletion: boolean;
     industry: string;
+    role: number;
   }
 }

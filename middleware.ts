@@ -14,11 +14,14 @@ export async function middleware(req: NextRequest) {
     hasToken: !!token,
     userProfileCompletion: token?.userProfileCompletion,
     userEmail: token?.userEmail,
+    role: token?.role,
   });
 
-  // Include /signup as an auth page
   const authPages = ["/login", "/register", "/signup"];
   const isAuthPage = authPages.includes(pathname);
+
+  // const adminRoutes = ["/admin-dashboard", "/user-listing"];
+  // const isAdminRoute = adminRoutes.some(route => pathname === route || pathname.startsWith(route + "/"));
 
   // Not authenticated and trying to access protected routes
   if (!token && !isAuthPage) {
@@ -26,42 +29,46 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // ===== NEW: Check if profile is incomplete - restrict access to home =====
+  // Profile incomplete logic
   if (token && token.userProfileCompletion === false) {
-    // Profile incomplete - only allow /register, block everything else
     if (pathname === "/register") {
-      console.log("✅ [Middleware] Profile incomplete, allowing /register");
       return NextResponse.next();
     }
-
-    // If on login, redirect to register
     if (pathname === "/login") {
-      console.log("⚠️ [Middleware] Profile incomplete, login → /register");
       return NextResponse.redirect(new URL("/register", req.url));
     }
-
-    console.log(
-      "⚠️ [Middleware] Profile incomplete, blocking",
-      pathname,
-      "→ /register",
-    );
     return NextResponse.redirect(new URL("/register", req.url));
   }
 
-  // ===== Profile is complete or no token - handle normal flows =====
-
-  // Authenticated and on login page → go home
+  // Authenticated and on login page → redirect based on role
   if (token && pathname === "/login") {
+    if (token.role === 1) {
+      return NextResponse.redirect(new URL("/admin-dashboard", req.url));
+    }
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  // Authenticated and on register page → go home (profile complete)
-  if (
-    token &&
-    pathname === "/register" &&
-    token.userProfileCompletion === true
-  ) {
+  // Authenticated and on register page → redirect based on role
+  if (token && pathname === "/register" && token.userProfileCompletion === true) {
+    if (token.role === 1) {
+      return NextResponse.redirect(new URL("/admin-dashboard", req.url));
+    }
     return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  // Role-based protection: Admin only routes
+  // if (isAdminRoute && token?.role !== 1) {
+  //   console.log("🚫 [Middleware] Unauthorized access to admin route, redirecting to /unauthorized");
+  //   return NextResponse.redirect(new URL("/unauthorized", req.url));
+  // }
+
+  // Prevent admin from accessing normal dashboard if requested, 
+  // but usually admin can access everything. 
+  // The user said: "if the role is admin then we have to show this routes and not the current normal dashboard."
+  // This sounds like a default redirect, but usually admin can still visit it.
+  // Let's implement the redirect from /dashboard to /admin-dashboard for admins to satisfy "not the current normal dashboard".
+  if (pathname === "/dashboard" && token?.role === 1) {
+    return NextResponse.redirect(new URL("/admin-dashboard", req.url));
   }
 
   return NextResponse.next();

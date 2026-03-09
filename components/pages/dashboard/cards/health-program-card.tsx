@@ -38,35 +38,7 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
 
 
     // All hooks must be called before any conditional returns
-    const tasks = useMemo(() =>
-        items.map(item => {
-            let subtitleText = item.subtitle
-            let progressLabel = ''
 
-            if (item.category === 'cam_therapy') {
-                progressLabel = `${item.completed_sessions ?? 'null'}/${item.total_sessions ?? 'null'} sessions`
-            } else if (item.category === 'supplement') {
-                progressLabel = `Week ${item.week_start ?? 'null'}/${item.duration_weeks ?? 'null'}`
-            } else if (item.duration_weeks) {
-                progressLabel = `Week ${item.week_start ?? 'null'}`
-            }
-
-            const progressPercentage = item.total_sessions
-                ? Math.round((item.completed_sessions / item.total_sessions) * 100)
-                : item.duration_weeks && item.week_start ? Math.round((item.week_start / item.duration_weeks) * 100) : 0
-
-            return {
-                id: item.item_id,
-                title: item.name,
-                subtitle: subtitleText,
-                progressLabel,
-                status: (item.status === 'completed' || (item.total_sessions && item.completed_sessions === item.total_sessions)) ? 'Completed' :
-                    (item.completed_sessions > 0 || (item.duration_weeks && item.status !== 'upcoming')) ? 'In Progress' : 'Upcoming',
-                progressPercentage,
-                category: item.category,
-            }
-        }), [items]
-    )
 
 
     if (error || !healthPlanData || data == null) {
@@ -85,7 +57,7 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
     // Timeline steps - hardcoded to match screenshot (Week 1-12, Initial Assessment completed, Week 6 check-up completed, Week 10 orthopaedist upcoming)
 
     return (
-        <Card className="border-none p-5 rounded-3xl w-full lg:w-[105%] mb-2
+        <Card className="border-none p-5 rounded-3xl w-full mb-2
                 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.45)_0%,#F7EFE5_50%,#FBE4D6_100%)]">
 
             {/* Header */}
@@ -99,25 +71,38 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
                 </p>
             </div>
 
-            {/* Timeline steps
-            {timelineSteps.length > 0 && (
-                <div className="mb-6 flex gap-3 overflow-x-auto pb-2 -mx-2 px-2">
-                    {timelineSteps.map((step, index) => (
-                        <div key={index} className="flex-shrink-0 flex flex-col items-center gap-2 min-w-[80px]">
-                            <div className={`px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
-                                step.status === 'Completed' 
-                                    ? 'bg-[#DBEAFE] text-[#1E40AF]'
-                                    : 'bg-[#FEF3C7] text-[#B45309]'
-                            }`}>
-                                {step.week}
+            {/* Timeline steps */}
+            <div className="">
+                <div className="flex gap-4 pb-4 justify-center">
+                    {[
+                        { title: 'Initial Assessment', status: 'Completed', week: 'Week 6', color: 'bg-[#BEE3F8]', textColor: 'text-[#2B6CB0]' },
+                        { title: 'Check-up', status: 'Completed', week: 'Week 1', color: 'bg-[#BEE3F8]', textColor: 'text-[#2B6CB0]' },
+                        { title: 'Orthopaedist appt', status: 'Upcoming', week: 'Week 12', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
+                    ].map((step, idx) => (
+                        <div key={idx} className="flex-shrink-0 w-64 bg-white/70 backdrop-blur-sm p-2 rounded-2xl shadow-sm border border-white/40">
+                            <div className="flex justify-between items-start mb-3">
+                                <span className={`px-3 py-1 rounded-full text-[11px] font-bold tracking-tight ${step.color} ${step.textColor}`}>
+                                    {step.status}
+                                </span>
+                                <span className="text-[11px] font-semibold text-[#545454]/60">{step.week}</span>
                             </div>
-                            <p className="text-xs text-[#545454] text-center">{step.title}</p>
+                            <h4 className="text-[15px] font-bold text-[#4A4A4A]">{step.title}</h4>
                         </div>
                     ))}
                 </div>
-            )} */}
 
-            <div className="space-y-4 bg-white/50 p-4 rounded-2xl">
+                {/* Timeline Progress Bar */}
+                <div className="relative mt-2 px-10">
+                    <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/90 -translate-y-1/2 rounded-full" />
+                    <div className="flex justify-between relative">
+                        <div className="w-3 h-3 rounded-full bg-white shadow-sm border border-white/20" />
+                        <div className="w-3 h-3 rounded-full bg-white shadow-sm border border-white/20" />
+                        <div className="w-3 h-3 rounded-full bg-[#1A1A1A] border-2 border-white/80 shadow-md z-10" />
+                    </div>
+                </div>
+            </div>
+
+            <div className="space-y-4 bg-white/50 p-4 rounded-2xl mb-8">
 
                 {/* Scroll container */}
                 <div className="max-h-[210px] overflow-y-auto space-y-3">
