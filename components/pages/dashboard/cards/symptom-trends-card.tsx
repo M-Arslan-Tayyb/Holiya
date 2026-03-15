@@ -156,9 +156,15 @@ export function SymptomTrendsCard({
 
                 <div className="w-full h-64">
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData}>
+                        <LineChart data={chartData} margin={{ right: 30, left: -20 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="date" />
+                            <XAxis
+                                dataKey="date"
+                                interval={1}
+                                padding={{ left: 10, right: 10 }}
+                                tick={{ fontSize: 11 }}
+                                tickFormatter={(value) => value.replace('Week ', 'Week')}
+                            />
                             <YAxis domain={[0, maxY]} />
                             <Tooltip content={<CustomTooltip />} />
                             <Legend />
@@ -177,7 +183,7 @@ export function SymptomTrendsCard({
                     </ResponsiveContainer>
                 </div>
                 {hasMultipleSymptoms && (
-                    <p className="text-xs text-[#545454] opacity-50 mt-2 text-center">
+                    <p className="text-xs text-[#545454] opacity-50 mt-2 text-center cursor-pointer" onClick={() => setIsFullscreen(true)}>
                         +{symptoms.length - 2} more symptoms. Click to view all
                     </p>
                 )}
@@ -279,9 +285,13 @@ export function SymptomTrendsCard({
 
                 <div className="w-full h-96 mb-6">
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData}>
+                        <LineChart data={chartData} margin={{ right: 30, left: -20 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="date" />
+                            <XAxis
+                                dataKey="date"
+                                interval={0}
+                                tick={{ fontSize: 12 }}
+                            />
                             <YAxis domain={[0, maxY]} />
                             <Tooltip content={<CustomTooltip />} />
                             <Legend wrapperStyle={{ flexWrap: 'wrap' }} />
