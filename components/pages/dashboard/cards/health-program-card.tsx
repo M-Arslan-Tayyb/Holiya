@@ -43,7 +43,7 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
 
     if (error || !healthPlanData || data == null) {
         return (
-            <Card className="border-none p-4 rounded-3xl w-full bg-[linear-gradient(to_bottom,rgba(255,255,255,0.45)_0%,#F7EFE5_70%,#FBE4D6_100%)] w-full lg:w-[105%]">
+            <Card className="border-none p-4 rounded-3xl w-full bg-[linear-gradient(to_bottom,rgba(255,255,255,0.45)_0%,#F7EFE5_70%,#FBE4D6_100%)] w-full">
                 <div className="flex items-center justify-center h-64">
                     <p className="text-[#545454]">{data?.message || 'No health plan found'}</p>
                 </div>
