@@ -1,7 +1,7 @@
 'use client'
 
 import { Card } from '@/components/ui/card'
-import { BadgeCheck, Apple, Salad, ChevronRight, Loader2 } from 'lucide-react'
+import { BadgeCheck, Apple, Salad, ChevronRight, Loader2, Stethoscope, Pill, Activity, HeartPulse, Thermometer } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { useGetHealthPlanQuery } from '@/services/features/dashboard/api'
 
@@ -62,7 +62,7 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
 
             {/* Header */}
             <div className=" flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-[#545454] mb-1">
+                <h3 className="text-lg font-semibold text-text-gray font-sans">
                     {planName}
                 </h3>
 
@@ -75,9 +75,9 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
             <div className="">
                 <div className="flex gap-4 pb-4 justify-center">
                     {[
-                        { title: 'Initial Assessment', status: 'Not Started', week: 'Week 6', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
-                        { title: 'Check-up', status: 'Not Started', week: 'Week 1', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
-                        { title: 'Orthopaedist appt', status: 'Not Started', week: 'Week 12', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
+                        { title: 'Initial Assessment', status: 'Not Started', week: 'Week 1', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
+                        { title: 'Check-up', status: 'Not Started', week: 'Week 6', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
+                        { title: 'Gynaecology appt', status: 'Not Started', week: 'Week 12', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
                     ].map((step, idx) => (
                         <div key={idx} className="flex-shrink-0 w-64 bg-white/70 backdrop-blur-sm p-2 rounded-2xl shadow-sm border border-white/40">
                             <div className="flex justify-between items-start mb-3">
@@ -107,7 +107,10 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
                 {/* Scroll container */}
                 <div className="max-h-[210px] overflow-y-auto space-y-3">
 
-                    {items.map((task) => {
+                    {items.map((task, index) => {
+                        const medicalIcons = [Stethoscope, Pill, Activity, HeartPulse, Thermometer];
+                        const Icon = medicalIcons[index % medicalIcons.length];
+
                         const total = task.total_sessions || 0;
                         const completed = task.completed_sessions || 0;
 
@@ -126,16 +129,21 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
                             >
                                 <div className="flex items-center justify-between">
                                     {/* LEFT */}
-                                    <div className="flex flex-col">
-                                        <p className="text-[15px] font-medium text-[#4A4A4A]">
-                                            {task.name}
-                                        </p>
-
-                                        {task.category && (
-                                            <p className="text-xs text-[#8E8E8E]">
-                                                {task.category}
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-[#F7F7F7] rounded-xl group-hover:bg-white/80 transition-all duration-300 shadow-sm border border-black/5">
+                                            <Icon className="w-5 h-5 text-[#4A4A4A] group-hover:text-black transition-colors" />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <p className="text-[15px] font-medium text-[#4A4A4A]">
+                                                {task.name}
                                             </p>
-                                        )}
+
+                                            {task.category && (
+                                                <p className="text-xs text-[#8E8E8E]">
+                                                    {task.category}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {/* RIGHT */}

@@ -45,9 +45,7 @@ export function WorkEnvironmentCard({ stressLevel, isLoading }: Props) {
                             Work environment
                         </div>
 
-                        <p className="text-xs text-[#545454] opacity-70 mb-4">
-                            Cervical Physical strain
-                        </p>
+
 
                         {/* No Data State */}
                         {!hasData ? (
