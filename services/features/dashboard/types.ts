@@ -2,12 +2,16 @@ export interface StressLevel {
     stress_level: number;
     reason: string;
     has_data: boolean;
+    work_env: string;
 }
 
 export interface DashboardFullData {
     stress_level: StressLevel;
     health_overview: any;
     symptom_trends: any;
+    work_env?: string;
+
+
 }
 
 export interface TimelineStep {

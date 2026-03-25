@@ -21,6 +21,7 @@ export interface LoginData {
   user_id: number;
   industry: string;
   role: number;
+  work_env?: string;
 }
 
 export interface ApiResponse<T> {
@@ -52,4 +53,5 @@ export interface AuthUser {
   userProfileCompletion: boolean;
   user_id?: number;
   role: number;
+  work_env?: string;
 }

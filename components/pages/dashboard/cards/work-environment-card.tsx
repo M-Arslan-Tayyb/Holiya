@@ -4,17 +4,23 @@ import { useState } from "react"
 import { Card } from '@/components/ui/card'
 import { Loader2 } from "lucide-react"
 import { CustomModal } from "@/components/custom/CustomModal"
+import { useSession } from "next-auth/react"
+
 
 interface Props {
     stressLevel?: {
         stress_level: number
         reason: string
         has_data: boolean
+        work_env?: string
     }
     isLoading?: boolean
 }
 
 export function WorkEnvironmentCard({ stressLevel, isLoading }: Props) {
+    const { data: session } = useSession()
+    console.log(session)
+
 
     const [open, setOpen] = useState(false)
 
@@ -44,6 +50,9 @@ export function WorkEnvironmentCard({ stressLevel, isLoading }: Props) {
                         <div className="text-lg font-semibold text-text-gray font-sans">
                             Work environment
                         </div>
+                        <p className="text-sm font-medium italic text-[#545454] opacity-90 mt-1 mb-2">
+                            {session?.user.work_env || ""}
+                        </p>
 
 
 

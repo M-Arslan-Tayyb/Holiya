@@ -11,7 +11,7 @@ import {
     Legend,
     ResponsiveContainer,
 } from 'recharts'
-import { Loader2, Maximize2, Minimize2, Feather, Activity, Stethoscope } from 'lucide-react'
+import { Loader2, Maximize2, Minimize2, Feather, Activity, Stethoscope, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
 
@@ -143,9 +143,12 @@ export function SymptomTrendsCard({
                     {hasMultipleSymptoms && (
                         <button
                             onClick={() => setIsFullscreen(true)}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                         >
-                            <Maximize2 className="w-4 h-4 text-[#545454]" />
+                            <span className="w-4 h-4 text-[#545454] text-sm font-semibold bg-white/70 p-2 rounded-xl border border-[#F0E6D8]">
+                                Learn More
+                            </span>
+                            {/* <Maximize2 className="w-4 h-4 text-[#545454]" /> */}
                         </button>
                     )}
                 </div>
@@ -279,7 +282,7 @@ export function SymptomTrendsCard({
                         onClick={() => setIsFullscreen(false)}
                         className="p-2 hover:bg-gray-100 rounded-lg"
                     >
-                        <Minimize2 className="w-5 h-5 text-[#545454]" />
+                        <X className="w-5 h-5 text-[#545454]" />
                     </button>
                 </div>
 

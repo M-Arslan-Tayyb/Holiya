@@ -45,6 +45,7 @@ export const authOptions: NextAuthOptions = {
             user_id,
             industry,
             role,
+            work_env
           } = data.data;
 
           // Return user object with actual user_id and role
@@ -58,6 +59,7 @@ export const authOptions: NextAuthOptions = {
             userProfileCompletion: user_profile_completion,
             industry,
             role,
+            work_env
           };
         } catch (error: any) {
           throw new Error(error.message || "Login failed");
@@ -77,6 +79,7 @@ export const authOptions: NextAuthOptions = {
         token.userProfileCompletion = user.userProfileCompletion;
         token.industry = user.industry;
         token.role = user.role;
+        token.work_env = user.work_env;
       }
 
       // Handle session updates
@@ -86,6 +89,7 @@ export const authOptions: NextAuthOptions = {
         token.userName = session.user.userName ?? token.userName;
         token.industry = session.user.industry ?? token.industry;
         token.role = session.user.role ?? token.role;
+        token.work_env = session.user.work_env ?? token.work_env;
       }
 
       return token;
@@ -103,6 +107,7 @@ export const authOptions: NextAuthOptions = {
         userProfileCompletion: token.userProfileCompletion,
         industry: token.industry,
         role: token.role,
+        work_env: token.work_env,
       };
 
       return session;

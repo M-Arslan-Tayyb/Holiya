@@ -77,7 +77,7 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
                     {[
                         { title: 'Initial Assessment', status: 'Not Started', week: 'Week 1', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
                         { title: 'Check-up', status: 'Not Started', week: 'Week 6', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
-                        { title: 'Gynaecology appt', status: 'Not Started', week: 'Week 12', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
+                        { title: 'Gynaecologist appt', status: 'Not Started', week: 'Week 12', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
                     ].map((step, idx) => (
                         <div key={idx} className="flex-shrink-0 w-64 bg-white/70 backdrop-blur-sm p-2 rounded-2xl shadow-sm border border-white/40">
                             <div className="flex justify-between items-start mb-3">

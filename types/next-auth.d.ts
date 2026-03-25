@@ -13,6 +13,7 @@ declare module "next-auth" {
       userProfileCompletion: boolean;
       industry: string;
       role: number;
+      work_env?: string;
     };
   }
 
@@ -26,6 +27,7 @@ declare module "next-auth" {
     userProfileCompletion: boolean;
     industry: string;
     role: number;
+    work_env?: string;
   }
 }
 
@@ -38,5 +40,6 @@ declare module "next-auth/jwt" {
     userProfileCompletion: boolean;
     industry: string;
     role: number;
+    work_env?: string;
   }
 }
