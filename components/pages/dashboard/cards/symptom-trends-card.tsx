@@ -163,7 +163,7 @@ export function SymptomTrendsCard({
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                             <XAxis
                                 dataKey="date"
-                                interval={1}
+                                interval={0}
                                 padding={{ left: 10, right: 10 }}
                                 tick={{ fontSize: 11 }}
                                 tickFormatter={(value) => value.replace('Week ', 'Week')}
