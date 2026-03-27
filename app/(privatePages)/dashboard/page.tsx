@@ -14,11 +14,11 @@ export default function DashboardPage() {
     const session = useSession()
     const userId = session.data?.user?.id
 
-    // const { data: dashboardData, isLoading: isDashboardLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) }, { skip: !userId })
-    const { data: dashboardData, isLoading: isDashboardLoading } = useGetUserDashboardFullQuery({ user_id: 35 }, { skip: !userId })
+    const { data: dashboardData, isLoading: isDashboardLoading } = useGetUserDashboardFullQuery({ user_id: Number(userId) }, { skip: !userId })
+    // const { data: dashboardData, isLoading: isDashboardLoading } = useGetUserDashboardFullQuery({ user_id: 35 }, { skip: !userId })
 
-    // const { isLoading: isHealthPlanLoading } = useGetHealthPlanQuery({ user_id: Number(userId) }, { skip: !userId })
-    const { isLoading: isHealthPlanLoading } = useGetHealthPlanQuery({ user_id: 18 }, { skip: !userId })
+    const { isLoading: isHealthPlanLoading } = useGetHealthPlanQuery({ user_id: Number(userId) }, { skip: !userId })
+    // const { isLoading: isHealthPlanLoading } = useGetHealthPlanQuery({ user_id: 18 }, { skip: !userId })
 
 
     const isPageLoading = isDashboardLoading || isHealthPlanLoading
@@ -54,9 +54,9 @@ export default function DashboardPage() {
                         />
                     </div>
                     <div className="flex-1">
-                        {/* <HealthProgramCard userId={Number(userId)} />
-                         */}
-                        <HealthProgramCard userId={18} />
+                        <HealthProgramCard userId={Number(userId)} />
+                        {/*  */}
+                        {/* <HealthProgramCard userId={18} /> */}
                     </div>
 
                 </div>
