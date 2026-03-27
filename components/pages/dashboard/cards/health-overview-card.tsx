@@ -59,7 +59,7 @@ export function HealthOverviewCard({ healthOverview, isLoading = false }: Health
                 <div className="flex-1 w-full lg:w-auto flex flex-col">
                     <div className='flex justify-between flex-col h-full w-full'>
                         <div className="">
-                            <h3 className="text-lg font-semibold text-gray-800">Health overview</h3>
+                            <h3 className="text-lg font-semibold text-gray-800 whitespace-nowrap">Health overview</h3>
                         </div>
                         <div className="flex flex-col flex-wrap gap-2">
                             <div className="text-sm text-[#545454] opacity-70">Current conditions</div>
@@ -98,7 +98,7 @@ export function HealthOverviewCard({ healthOverview, isLoading = false }: Health
             <div className="flex-1 w-full lg:w-auto flex flex-col">
                 <div className='flex justify-between flex-col h-full w-full'>
                     <div className="">
-                        <h3 className="text-lg font-semibold text-gray-800 font-sans">Health overview</h3>
+                        <h3 className="text-lg font-semibold text-gray-800 font-sans whitespace-nowrap">Health overview</h3>
                     </div>
 
                     <TooltipProvider>

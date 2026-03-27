@@ -30,7 +30,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                     {/* Hamburger menu for mobile */}
                     <button
                         onClick={handleMenuClick}
-                        className="lg:hidden fixed top-4 left-4 z-50 bg-white/60 backdrop-blur-sm p-2 rounded-lg shadow-md border border-gray-200 hover:bg-white/80 transition-all"
+                        className="lg:hidden fixed top-8 left-4 z-50 bg-white/60 backdrop-blur-sm p-2 rounded-lg shadow-md border border-gray-200 hover:bg-white/80 transition-all"
                     >
                         <Menu className="w-5 h-5 text-[#545454]" />
                     </button>

@@ -72,32 +72,64 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
             </div>
 
             {/* Timeline steps */}
-            <div className="">
-                <div className="flex gap-4 pb-4 justify-center">
-                    {[
-                        { title: 'Initial Assessment', status: 'Not Started', week: 'Week 1', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
-                        { title: 'Check-up', status: 'Not Started', week: 'Week 6', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
-                        { title: 'Gynaecologist appt', status: 'Not Started', week: 'Week 12', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
-                    ].map((step, idx) => (
-                        <div key={idx} className="flex-shrink-0 w-64 bg-white/70 backdrop-blur-sm p-2 rounded-2xl shadow-sm border border-white/40">
-                            <div className="flex justify-between items-start mb-3">
-                                <span className={`px-3 py-1 rounded-full text-[11px] font-bold tracking-tight ${step.color} ${step.textColor}`}>
-                                    {step.status}
-                                </span>
-                                <span className="text-[11px] font-semibold text-[#545454]/60">{step.week}</span>
+            <div className="mt-4">
+                {/* Desktop/Tablet Horizontal Layout */}
+                <div className="hidden md:block">
+                    <div className="flex gap-4 pb-4 justify-center">
+                        {[
+                            { title: 'Initial Assessment', status: 'Not Started', week: 'Week 1', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
+                            { title: 'Check-up', status: 'Not Started', week: 'Week 6', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
+                            { title: 'Gynaecologist appt', status: 'Not Started', week: 'Week 12', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
+                        ].map((step, idx) => (
+                            <div key={idx} className="flex-shrink-0 w-64 bg-white/70 backdrop-blur-sm p-2 rounded-2xl shadow-sm border border-white/40">
+                                <div className="flex justify-between items-start mb-3">
+                                    <span className={`px-3 py-1 rounded-full text-[11px] font-bold tracking-tight ${step.color} ${step.textColor}`}>
+                                        {step.status}
+                                    </span>
+                                    <span className="text-[11px] font-semibold text-[#545454]/60">{step.week}</span>
+                                </div>
+                                <h4 className="text-[15px] font-bold text-[#4A4A4A]">{step.title}</h4>
                             </div>
-                            <h4 className="text-[15px] font-bold text-[#4A4A4A]">{step.title}</h4>
+                        ))}
+                    </div>
+
+                    {/* Timeline Progress Bar */}
+                    <div className="relative mt-2 px-10">
+                        <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/90 -translate-y-1/2 rounded-full" />
+                        <div className="flex justify-between relative">
+                            <div className="w-3 h-3 rounded-full bg-[#1A1A1A] border-2 border-white/80 shadow-md z-10" />
+                            <div className="w-3 h-3 rounded-full bg-white shadow-sm border border-white/20" />
+                            <div className="w-3 h-3 rounded-full bg-white shadow-sm border border-white/20" />
                         </div>
-                    ))}
+                    </div>
                 </div>
 
-                {/* Timeline Progress Bar */}
-                <div className="relative mt-2 px-10">
-                    <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/90 -translate-y-1/2 rounded-full" />
-                    <div className="flex justify-between relative">
-                        <div className="w-3 h-3 rounded-full bg-[#1A1A1A] border-2 border-white/80 shadow-md z-10" />
-                        <div className="w-3 h-3 rounded-full bg-white shadow-sm border border-white/20" />
-                        <div className="w-3 h-3 rounded-full bg-white shadow-sm border border-white/20" />
+                {/* Mobile Vertical Layout (Vertical Scroll) */}
+                <div className="md:hidden mb-4">
+                    <div className="flex flex-col gap-3 max-h-[250px] overflow-y-auto pr-2 relative filter drop-shadow-sm scrollbar-hide">
+                        {/* Vertical timeline line */}
+                        <div className="absolute left-[14px] top-6 bottom-4 w-[2px] bg-white/90 rounded-full z-0 -translate-x-1/2" />
+
+                        {[
+                            { title: 'Initial Assessment', status: 'Not Started', week: 'Week 1', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
+                            { title: 'Check-up', status: 'Not Started', week: 'Week 6', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
+                            { title: 'Gynaecologist appt', status: 'Not Started', week: 'Week 12', color: 'bg-[#FEEBC8]', textColor: 'text-[#C05621]' },
+                        ].map((step, idx) => (
+                            <div key={idx} className="relative pl-10 pt-1">
+                                {/* Timeline Dot */}
+                                <div className={`absolute left-[14px] top-[24px] w-3 h-3 rounded-full ${idx === 0 ? 'bg-[#1A1A1A] border-2 border-white/80 shadow-md z-10' : 'bg-white shadow-sm border border-white/50 z-10'} -translate-x-1/2 -translate-y-1/2`} />
+
+                                <div className="w-full bg-white/70 backdrop-blur-sm p-3 rounded-2xl shadow-sm border border-white/60">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight ${step.color} ${step.textColor}`}>
+                                            {step.status}
+                                        </span>
+                                        <span className="text-[11px] font-semibold text-[#545454]/60">{step.week}</span>
+                                    </div>
+                                    <h4 className="text-[14px] font-bold text-[#4A4A4A]">{step.title}</h4>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
@@ -127,19 +159,19 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
                                 className="flex flex-col py-2 px-3 rounded-xl hover:bg-gray-200/25 transition-all duration-200 cursor-pointer group"
                                 onClick={() => setExpandedTaskId(isExpanded ? null : task.item_id)}
                             >
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
                                     {/* LEFT */}
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-[#F7F7F7] rounded-xl group-hover:bg-white/80 transition-all duration-300 shadow-sm border border-black/5">
+                                    <div className="flex items-center gap-3 overflow-hidden">
+                                        <div className="p-2 bg-[#F7F7F7] rounded-xl group-hover:bg-white/80 transition-all duration-300 shadow-sm border border-black/5 shrink-0">
                                             <Icon className="w-5 h-5 text-[#4A4A4A] group-hover:text-black transition-colors" />
                                         </div>
-                                        <div className="flex flex-col">
-                                            <p className="text-[15px] font-medium text-[#4A4A4A]">
+                                        <div className="flex flex-col min-w-0">
+                                            <p className="text-[15px] font-medium text-[#4A4A4A] truncate">
                                                 {task.name}
                                             </p>
 
                                             {task.category && (
-                                                <p className="text-xs text-[#8E8E8E]">
+                                                <p className="text-xs text-[#8E8E8E] truncate">
                                                     {task.category}
                                                 </p>
                                             )}
@@ -147,15 +179,18 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
                                     </div>
 
                                     {/* RIGHT */}
-                                    <div className="flex flex-col items-end gap-1 w-40">
+                                    <div className="flex flex-row items-center justify-between sm:justify-end sm:flex-col sm:items-end w-full sm:w-40 pl-[48px] sm:pl-0 mt-1 sm:mt-0">
                                         {isCompleted ? (
-                                            <span className="px-3 py-[3px] bg-[#BEE3F8] text-[#3182CE] text-xs font-medium rounded-full">
-                                                Completed
-                                            </span>
+                                            <div className="flex items-center justify-between w-full sm:w-auto">
+                                                <span className="px-3 py-[3px] bg-[#BEE3F8] text-[#3182CE] text-xs font-medium rounded-full">
+                                                    Completed
+                                                </span>
+                                                <ChevronRight className={`sm:hidden shrink-0 w-5 h-5 text-black/40 group-hover:text-black/60 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`} />
+                                            </div>
                                         ) : (
-                                            <div className="flex gap-2 items-center">
-                                                <div className="flex flex-col gap-1 w-40">
-                                                    <span className="text-sm text-text-gray font-medium">
+                                            <div className="flex gap-2 items-center w-full sm:w-auto">
+                                                <div className="flex flex-col gap-1 flex-1 sm:w-40">
+                                                    <span className="text-xs sm:text-sm text-text-gray font-medium">
                                                         {completed}/{total} weeks
                                                     </span>
 
@@ -167,7 +202,7 @@ export function HealthProgramCard({ userId }: HealthProgramCardProps) {
                                                     </div>
                                                 </div>
 
-                                                <ChevronRight className={`w-6 h-6 text-black/40 group-hover:text-black/60 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`} />
+                                                <ChevronRight className={`shrink-0 w-5 h-5 sm:w-6 sm:h-6 text-black/40 group-hover:text-black/60 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`} />
                                             </div>
                                         )}
                                     </div>
