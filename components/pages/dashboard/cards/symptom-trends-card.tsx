@@ -78,7 +78,7 @@ export function SymptomTrendsCard({
         )
     }
 
-    if (!symptomTrends?.has_data) {
+    if (!symptomTrends?.has_data || !symptomTrends?.symptoms || symptomTrends.symptoms.length === 0) {
         return (
             <Card className="bg-[linear-gradient(135deg,#FFD6D0_0%,#F7EFE5_50%,#FFFFFF_100%)] gap-0 border-none p-4 rounded-2xl w-full h-full">
                 <h3 className="text-lg font-semibold text-[#545454] opacity-70 mb-1 font-sans">

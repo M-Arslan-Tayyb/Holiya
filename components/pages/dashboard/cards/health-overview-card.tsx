@@ -105,20 +105,31 @@ export function HealthOverviewCard({ healthOverview, isLoading = false }: Health
                         <div className="flex flex-col flex-wrap gap-2">
                             <div className="text-sm text-[#545454] opacity-70">Current conditions</div>
 
-                            <div className="flex flex-col gap-2 overflow-y-auto max-h-[72px] pr-2 -mr-2">
-                                {currentConditions.slice(0, 6).map((condition, index) => {
+                            <div className="flex flex-col gap-2 overflow-y-auto max-h-[72px] pr-2 -mr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+                                {currentConditions.map((condition, index) => {
                                     const firstWord = condition.split(' ')[0]
                                     const isLong = condition.length > 20
+
+                                    // Cycle through a diverse palette of pastel colors and solid dots
+                                    const themes = [
+                                        { bg: 'bg-blue-200/70', dot: 'bg-blue-500' },
+                                        { bg: 'bg-red-200/70', dot: 'bg-red-500' },
+                                        { bg: 'bg-green-200/70', dot: 'bg-green-500' },
+                                        { bg: 'bg-orange-200/70', dot: 'bg-orange-500' },
+                                        { bg: 'bg-purple-200/70', dot: 'bg-purple-500' },
+                                        { bg: 'bg-teal-200/70', dot: 'bg-teal-500' },
+                                        { bg: 'bg-pink-200/70', dot: 'bg-pink-500' },
+                                    ];
+                                    const theme = themes[index % themes.length];
 
                                     return (
                                         <Tooltip key={index}>
                                             <TooltipTrigger asChild>
                                                 <button
                                                     type="button"
-                                                    className={`px-3 py-2 text-text-gray text-xs font-medium rounded-xl w-[80%] flex items-center gap-2 
-                  ${index % 2 === 0 ? 'bg-blue-300' : 'bg-red-300'}`}
+                                                    className={`px-3 py-2 text-text-gray hover:opacity-80 transition-opacity text-xs font-medium rounded-xl w-[80%] flex items-center gap-2 ${theme.bg}`}
                                                 >
-                                                    <div className={`w-2 h-2 rounded-full ${index % 2 === 0 ? 'bg-blue-500' : 'bg-red-500'}`} />
+                                                    <div className={`w-2 h-2 rounded-full shrink-0 ${theme.dot}`} />
                                                     <span className="truncate">{isLong ? `${firstWord}...` : condition}</span>
                                                 </button>
                                             </TooltipTrigger>
